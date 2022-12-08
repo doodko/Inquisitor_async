@@ -46,6 +46,7 @@ jobs:
 
       - name: push
         run: |
+          doctl compute ssh PKBotInfo
           cd /home/doodko/Inquisitor_async/
           git pull
           sudo systemctl restart inquisitor.service
