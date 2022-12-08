@@ -31,16 +31,21 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
   deploy:
+    needs: build
 
+    name: Push and deploy
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
+
       - name: connect to server
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          
         run: |
-          ssh -tt ${{  secrets.SERVER_USER  }}@${{  secrets.SERVER_IPADDRESS  }}
           cd Inquisitor_async/
           git pull
-      - name: restart bot service
-        run: sudo systemctl restart inquisitor.service
-      - name: close ssh connection
-        run: exit
+          sudo systemctl restart inquisitor.service
+          exit
