@@ -43,9 +43,10 @@ jobs:
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_TOKEN }}
-          
+
+      - name: push
         run: |
-          cd Inquisitor_async/
+          doctl cd Inquisitor_async/
           git pull
           sudo systemctl restart inquisitor.service
           exit
