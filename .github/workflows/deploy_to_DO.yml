@@ -46,7 +46,7 @@ jobs:
 
       - name: push
         run: |
-          cd Inquisitor_async/
+          cd /root/Inquisitor_async/
           git pull
           sudo systemctl restart inquisitor.service
           exit
