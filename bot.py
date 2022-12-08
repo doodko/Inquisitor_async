@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 from handlers import commands, faq
 from settings_reader import config
 
+
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=config.token.get_secret_value())
 
