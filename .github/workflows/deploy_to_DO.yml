@@ -10,43 +10,27 @@ permissions:
   contents: read
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
   deploy:
-    needs: build
-
     name: Push and deploy
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: connect to server
-        uses: digitalocean/action-doctl@v2
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
         with:
-          token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          key: ${{ secrets.ACCESS_KEY }}
+          known_hosts: 'just-a-placeholder'
 
-      - name: push
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SERVER_IPADDRESS }} >> ~/.ssh/known_hosts
+
+      - name: connect to server
+        run: ssh -tt ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IPADDRESS }}
+
+      - name: push and exit
         run: |
-          doctl compute ssh PKBotInfo
           cd /home/doodko/Inquisitor_async/
           git pull
           sudo systemctl restart inquisitor.service
