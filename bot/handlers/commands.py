@@ -10,10 +10,10 @@ router = Router()
 router.message.filter(F.from_user.id.in_(config.admins))
 
 
-@router.message(Command(commands=['send_message']))
-async def cmd_send_message(message: Message):
-    msg = message.text[13:]
-    await bot.send_message(chat_id='-1001092707720', text=msg)
+# @router.message(Command(commands=['send_message']))
+# async def cmd_send_message(message: Message):
+#     msg = message.text[13:]
+#     await bot.send_message(chat_id='-1001092707720', text=msg)
 
 
 @router.message(Command(commands=['health_check']))
