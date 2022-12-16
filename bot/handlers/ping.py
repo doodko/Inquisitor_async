@@ -1,4 +1,5 @@
 from aiogram import Router
+from aiogram.filters import Command
 from aiogram.types import Message
 
 import subprocess
@@ -7,7 +8,7 @@ import subprocess
 router = Router()
 
 
-@router.message(commands=['ping'])
+@router.message(Command(commands=['ping']))
 async def cmd_ping(message: Message):
     host = message.text.split()[1]
     command = ['ping', '-n', '1', host]
