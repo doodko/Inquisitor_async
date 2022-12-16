@@ -27,7 +27,7 @@ class PingService:
     async def ping_host(host: Host) -> bool:
         logger.debug(f"ping {host.name} - {host.address}")
         ip = host.address
-        command = ['ping', '-n', '2', ip]
+        command = ['ping', '-c', '2', ip]
         is_online = subprocess.run(args=command, stdout=subprocess.DEVNULL).returncode == 0
 
         message = notifier.get_current_state(instance=host)
