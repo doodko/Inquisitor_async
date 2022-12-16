@@ -2,15 +2,16 @@ import asyncio
 import subprocess
 from random import choice
 
+from aiogram import Bot
 from loguru import logger
 
-from bot.start_bot import send_message
 from ping_app.host_service import host_crud_service
 from ping_app.models import Zone, Host
 from ping_app.notifier_service import NotifierService
 from settings_reader import config
 
 
+bot = Bot(token=config.token.get_secret_value(), parse_mode="HTML")
 notifier = NotifierService()
 
 
@@ -52,9 +53,7 @@ class PingService:
                 await self.check_zone_status(zone=host.zone_group)
 
     async def check_zone_status(self, zone: Zone) -> str:
-        status_lst = [await self.ping_host(host=host) for host in zone.addresses]
-        zone_avg = round(sum(status_lst) / len(status_lst))
-        zone_status = bool(zone_avg)
+        zone_status = any([await self.ping_host(host=host) for host in zone.addresses])
 
         message = notifier.get_current_state(instance=zone)
 
@@ -64,6 +63,12 @@ class PingService:
 
         logger.info(message)
         return message
+
+    @staticmethod
+    async def get_current_zones_status() -> str:
+        zones = await host_crud_service.get_all_zones()
+        zone_statuses = [notifier.get_current_state(zone) for zone in zones]
+        return '\n'.join(zone_statuses)
 
     async def ping_all_hots(self):
         hosts = await host_crud_service.get_all_hosts()
@@ -77,16 +82,31 @@ class PingService:
             await task
 
     async def fake_ping(self):
-        coffeeshop = host_crud_service.session.get(Host, 1)
-        alex = host_crud_service.session.get(Host, 5)
+
+        coffeeshop: Host = host_crud_service.session.get(Host, 1)
+        alex: Host = host_crud_service.session.get(Host, 5)
         hosts = [coffeeshop, alex]
 
-        for host in hosts:
-            host_status = await self.ping_host(host=host)
+        while config.ping_flag:
+            logger.debug('start fake ping service')
+            for host in hosts:
+                host_status = await self.ping_host(host=host)
 
-            if host_status != host.zone_group.is_online:
-                message = notifier.get_changed_state(instance=host.zone_group)
-                await host_crud_service.invert_online_status(instance=host.zone_group)
+                if host_status != host.zone_group.is_online:
+                    await self.zone_status_switched(zone=host.zone_group)
 
-                logger.info(message)
-                await send_message(message)
+            logger.debug('sleeping 60 sec')
+            await asyncio.sleep(config.ping_period)
+
+    @staticmethod
+    async def zone_status_switched(zone: Zone):
+        current_zone_message = notifier.get_changed_state(instance=zone)
+        await host_crud_service.invert_online_status(instance=zone)
+        logger.info(current_zone_message)
+
+        other_zone = await host_crud_service.get_other_zone(zone=zone)
+        other_zone_message = notifier.get_current_state(instance=other_zone)
+        answer = f"{current_zone_message}\n{other_zone_message}"
+
+        # await bot.send_message(chat_id=config.superuser_id, text='💡')
+        await bot.send_message(chat_id=config.superuser_id, text=answer)
