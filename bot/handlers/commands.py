@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from bot import bot
+from bot.main import bot
 from settings_reader import config
 
 
