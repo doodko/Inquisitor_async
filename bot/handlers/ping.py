@@ -1,4 +1,4 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 
@@ -18,5 +18,12 @@ async def cmd_start_ping(message: Message):
 
 @router.message(Command(commands=['current_status']))
 async def cmd_current_status(message: Message):
+    await message.delete()
+    text = await ps.get_current_zones_status()
+    await message.answer(text=text)
+
+
+@router.message(F.text.lower().regexp(r".*(є|есть|дали).*(світло|свет).*(\?)"))
+async def say_current_status(message: Message):
     text = await ps.get_current_zones_status()
     await message.answer(text=text)

@@ -5,9 +5,9 @@ from aiogram.types import Message
 router = Router()
 
 
-regexp_base = r"((дайте)|.*(ка[жз])|(пиш)|(какой)|(який)).+"
-ohorona = regexp_base + r"((телефон)|(номер)).+(ох[о]?р[оа]н[иы])"
-service_company = regexp_base + r"((телефон)|(номер)).+((ж[єкеэ][хк])|(комфорт.серв[иі]с))"
+regexp_base = r".*((дайте)|.*(ка[жз])|(пиш)|(какой)|(який)).*"
+ohorona = regexp_base + r"((телефон)|(номер)).*(ох[о]?р[оа]н[иы])"
+service_company = regexp_base + r"((телефон)|(номер)).*((ж[єкеэ][хк])|(комфорт.серв[иі]с))"
 post_index = regexp_base + r"([іи]ндекс)"
 
 
@@ -22,5 +22,5 @@ async def say_service_company_phone(message: Message):
 
 
 @router.message(F.text.lower().regexp(post_index))
-async def say_service_company_phone(message: Message):
+async def say_index(message: Message):
     await message.reply("індекс: 08148")
