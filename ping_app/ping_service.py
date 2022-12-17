@@ -108,5 +108,7 @@ class PingService:
         other_zone_message = notifier.get_current_state(instance=other_zone)
         answer = f"{current_zone_message}\n{other_zone_message}"
 
-        # await bot.send_message(chat_id=config.superuser_id, text='💡')
-        await bot.send_message(chat_id=config.superuser_id, text=answer)
+        emodji = ('⚡', '💡')
+        destination = '-1001092707720'  # config.superuser_id
+        await bot.send_message(chat_id=destination, text=f"{emodji[zone.is_online]}")
+        await bot.send_message(chat_id=destination, text=answer)
