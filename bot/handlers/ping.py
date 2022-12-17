@@ -1,3 +1,5 @@
+import random
+
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -23,7 +25,14 @@ async def cmd_current_status(message: Message):
     await message.answer(text=text)
 
 
-@router.message(F.text.lower().regexp(r".*(є|есть|дали).*(світло|свет).*(\?)"))
+@router.message(F.text.lower().regexp(r".*(є|дали).*(світло).*(\?)") |
+                F.text.lower().regexp(r".*(світло).*(є|дали).*(\?)"))
 async def say_current_status(message: Message):
     text = await ps.get_current_zones_status()
-    await message.answer(text=text)
+    await message.reply(text=text)
+
+
+@router.message(F.text.lower().regexp(r".*(есть).*(свет).*(\?)") | F.text.lower().regexp(r".*(свет).*(есть).*(\?)"))
+async def say_current_status(message: Message):
+    answers = ("Я знаю, проте не скажу! 🤓", "🤪 расєянську не разумєю", "Запитай мене солов'їною 😍")
+    await message.reply(text=random.choice(answers))
