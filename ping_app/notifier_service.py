@@ -20,9 +20,12 @@ class NotifierService:
 
     @staticmethod
     def _calculate_hours_and_minutes(instance: Zone | Host) -> str:
-        seconds_since_last_update = (datetime.now() - instance.updated_at).seconds
+        time_since_last_update = datetime.now() - instance.updated_at
+        seconds_since_last_update = time_since_last_update.seconds
+        days: int = time_since_last_update.days
+        days_str = str(days) + ' дн. ' if days else ''
         hours: int = seconds_since_last_update // 3600
         hours_str = str(hours) + ' год. ' if hours else ''
         minutes: int = seconds_since_last_update % 3600 // 60
 
-        return f"{hours_str}{minutes:02} хв."
+        return f"{days_str}{hours_str}{minutes:02} хв."
