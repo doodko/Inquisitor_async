@@ -21,6 +21,9 @@ class HostService:
         await self._add_instance_to_db(instance=new_host)
         return new_host
 
+    async def get_zone_by_id(self, zone_id: int) -> Zone:
+        return self.session.get(Zone, zone_id)
+
     async def get_all_hosts(self) -> list[Host]:
         return self.session.scalars(select(Host)).all()
 
@@ -53,6 +56,15 @@ class HostService:
         self.session.delete(host)
         self.session.commit()
         return {'message': f'Host {host.address} was deleted'}
+
+    async def update_zone_time(self, zone_id: int, new_time: str) -> str:
+        zone = await self.get_zone_by_id(zone_id=zone_id)
+        hours, minutes = [int(x) for x in new_time.split('-')]
+        zone.updated_at = zone.updated_at.replace(hour=hours, minute=minutes)
+
+        self.session.commit()
+
+        return f"{zone} was updated, new time is {zone.updated_at}"
 
 
 host_crud_service = HostService()
