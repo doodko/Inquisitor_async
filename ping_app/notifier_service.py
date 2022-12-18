@@ -23,7 +23,7 @@ class NotifierService:
         time_since_last_update = datetime.now() - instance.updated_at
         seconds_since_last_update = time_since_last_update.seconds
         days: int = time_since_last_update.days
-        days_str = str(days) + ' днів ' if days else ''
+        days_str = str(days) + ' дн. ' if days else ''
         hours: int = seconds_since_last_update // 3600
         hours_str = str(hours) + ' год. ' if hours else ''
         minutes: int = seconds_since_last_update % 3600 // 60
