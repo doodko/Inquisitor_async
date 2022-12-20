@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ping_flag: bool = True
 
     class Config:
-        env_file = "../.env"
+        env_file = ".env"
 
 
 config = Settings()
