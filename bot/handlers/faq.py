@@ -30,7 +30,7 @@ async def say_index(message: Message):
     await message.reply("індекс: 08148")
 
 
-@router.message(F.text.lower().regexp(r".*(\bсвітло\b.*\bє\b).*|.*(\bє\b.*\bсвітло\b).*\?"))
+@router.message(F.text.lower().regexp(r".*((\bсвітло\b.*\bє\b).*|.*(\bє\b.*\bсвітло\b)).*\?"))
 async def say_current_status(message: Message):
     if message.chat.type in ('group', 'supergroup'):
         text = await ps.get_current_zones_status_short()
@@ -40,7 +40,7 @@ async def say_current_status(message: Message):
     await message.reply(text=text)
 
 
-@router.message(F.text.lower().regexp(r".*(\bсвет\b.*\bесть\b).*|.*(\bесть\b.*\bсвет\b).*\?"))
+@router.message(F.text.lower().regexp(r".*((\bсвет\b.*\bесть\b).*|.*(\bесть\b.*\bсвет\b)).*\?"))
 async def say_current_status(message: Message):
     answers = ("Я знаю, проте не скажу! 🤓", "🤪 расєянську не разумєю", "Запитай мене солов'їною 😍")
     await message.reply(text=choice(answers))
