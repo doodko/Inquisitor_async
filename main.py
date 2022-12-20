@@ -3,8 +3,8 @@ import sys
 
 from loguru import logger
 
-from bot.start_bot import main as bot
-from ping_app.main import main as ping
+from start_bot import main as bot
+from pinsg_start import main as ping
 
 
 logger.remove()
