@@ -32,7 +32,11 @@ async def say_index(message: Message):
 
 @router.message(F.text.lower().regexp(r".*(\bсвітло\b.*\bє\b).*|.*(\bє\b.*\bсвітло\b).*\?"))
 async def say_current_status(message: Message):
-    text = await ps.get_current_zones_status()
+    if message.chat.type in ('group', 'supergroup'):
+        text = await ps.get_current_zones_status_short()
+    elif message.chat.type == 'private':
+        text = await ps.get_current_zones_status()
+
     await message.reply(text=text)
 
 

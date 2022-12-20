@@ -83,6 +83,12 @@ class PingService:
         zone_statuses = [notifier.get_current_state(zone) for zone in zones]
         return '\n'.join(zone_statuses)
 
+    @staticmethod
+    async def get_current_zones_status_short() -> str:
+        zones = await host_crud_service.get_all_zones()
+        zone_statuses = [notifier.get_current_state_short(zone) for zone in zones]
+        return '\n'.join(zone_statuses)
+
     async def ping_all_hots(self):
         hosts = await host_crud_service.get_all_hosts()
         for host in hosts:
