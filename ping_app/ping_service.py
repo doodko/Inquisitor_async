@@ -1,5 +1,6 @@
 import asyncio
 import subprocess
+import platform
 from random import choice
 
 from aiogram import Bot
@@ -17,17 +18,18 @@ notifier = NotifierService()
 
 class PingService:
     async def start_service(self):
-        logger.info('Start ping service')
-        while True:
+        await bot.send_message(chat_id=config.superuser_id, text='Service started')
+        logger.info('Ping service started')
+        while config.ping_flag:
             await self.ping_random_hosts()
-            logger.debug(f'sleeping {config.ping_period} seconds')
             await asyncio.sleep(config.ping_period)
 
     @staticmethod
     async def ping_host(host: Host) -> bool:
         logger.debug(f"ping {host.name} - {host.address}")
         ip = host.address
-        command = ['ping', '-c', '2', ip]
+        param = '-n' if platform.system().lower() == 'windows' else '-c'
+        command = ['ping', param, '2', ip]
         is_online = subprocess.run(args=command, stdout=subprocess.DEVNULL).returncode == 0
 
         message = notifier.get_current_state(instance=host)
@@ -49,20 +51,31 @@ class PingService:
         for host in await self.get_hosts_for_ping():
             host_status = await self.ping_host(host)
 
-            if host_status != host.is_online:
+            if host_status != host.zone_group.is_online:
                 await self.check_zone_status(zone=host.zone_group)
 
-    async def check_zone_status(self, zone: Zone) -> str:
+    async def check_zone_status(self, zone: Zone):
         zone_status = any([await self.ping_host(host=host) for host in zone.addresses])
 
-        message = notifier.get_current_state(instance=zone)
-
         if zone_status != zone.is_online:
-            message = notifier.get_changed_state(instance=zone)
-            await host_crud_service.invert_online_status(instance=zone)
+            await self.zone_status_switched(zone=zone)
 
-        logger.info(message)
-        return message
+    @staticmethod
+    async def zone_status_switched(zone: Zone):
+        current_zone_message = notifier.get_changed_state(instance=zone)
+        logger.info(current_zone_message)
+        await host_crud_service.invert_online_status(instance=zone)
+
+        # other_zone = await host_crud_service.get_other_zone(zone=zone)
+        # other_zone_message = notifier.get_current_state(instance=other_zone)
+        # answer = f"{current_zone_message}\n{other_zone_message}"
+
+        answer = f"{current_zone_message}"
+
+        emodji = ('⚡', '💡')
+        destination = '-1001092707720'  # config.superuser_id
+        await bot.send_message(chat_id=destination, text=f"{emodji[zone.is_online]}")
+        await bot.send_message(chat_id=destination, text=answer)
 
     @staticmethod
     async def get_current_zones_status() -> str:
@@ -75,20 +88,12 @@ class PingService:
         for host in hosts:
             await self.ping_host(host=host)
 
-    async def ping_all_async(self):
-        hosts = await host_crud_service.get_all_hosts()
-        for host in hosts:
-            task = asyncio.create_task(self.ping_host(host=host))
-            await task
-
     async def fake_ping(self):
-
         coffeeshop: Host = host_crud_service.session.get(Host, 1)
         alex: Host = host_crud_service.session.get(Host, 5)
         hosts = [coffeeshop, alex]
 
         while config.ping_flag:
-            logger.debug('start fake ping service')
             for host in hosts:
                 host_status = await self.ping_host(host=host)
 
@@ -97,18 +102,3 @@ class PingService:
 
             logger.debug('sleeping 60 sec')
             await asyncio.sleep(config.ping_period)
-
-    @staticmethod
-    async def zone_status_switched(zone: Zone):
-        current_zone_message = notifier.get_changed_state(instance=zone)
-        await host_crud_service.invert_online_status(instance=zone)
-        logger.info(current_zone_message)
-
-        other_zone = await host_crud_service.get_other_zone(zone=zone)
-        other_zone_message = notifier.get_current_state(instance=other_zone)
-        answer = f"{current_zone_message}\n{other_zone_message}"
-
-        emodji = ('⚡', '💡')
-        destination = '-1001092707720'  # config.superuser_id
-        await bot.send_message(chat_id=destination, text=f"{emodji[zone.is_online]}")
-        await bot.send_message(chat_id=destination, text=answer)

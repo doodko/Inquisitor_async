@@ -6,7 +6,6 @@ from ping_app.db import Session
 from ping_app.models import Zone, Host
 
 
-
 class HostService:
     def __init__(self, session: Session = Session()):
         self.session = session
@@ -49,8 +48,6 @@ class HostService:
         instance.is_online = not instance.is_online
         instance.updated_at = datetime.now()
         self.session.commit()
-
-        return instance
 
     async def delete_host(self, host: Host):
         self.session.delete(host)
