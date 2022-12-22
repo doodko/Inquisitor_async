@@ -13,6 +13,8 @@ regexp_base = r".*((дайте)|.*(ка[жз])|(пиш)|(какой)|(який))
 ohorona = regexp_base + r"((телефон)|(номер)).*(ох[о]?р[оа]н[иы])"
 service_company = regexp_base + r"((телефон)|(номер)).*((ж[єкеэ][хк])|(комфорт.серв[иі]с))"
 post_index = regexp_base + r"([іи]ндекс)"
+lighting_ukr = r".*((\bсвітло\b.*\bє\b).*|.*(\bє\b.*\bсвітло\b)).*\?"
+lighting_ru = r".*((\bсвет\b.*\bесть\b).*|.*(\bесть\b.*\bсвет\b)).*\?"
 
 
 @router.message(F.text.lower().regexp(ohorona))
@@ -30,7 +32,7 @@ async def say_index(message: Message):
     await message.reply("індекс: 08148")
 
 
-@router.message(F.text.lower().regexp(r".*((\bсвітло\b.*\bє\b).*|.*(\bє\b.*\bсвітло\b)).*\?"))
+@router.message(F.text.lower().regexp(lighting_ukr))
 async def say_current_status(message: Message):
     if message.chat.type in ('group', 'supergroup'):
         text = await ps.get_current_zones_status_short()
@@ -40,7 +42,7 @@ async def say_current_status(message: Message):
     await message.reply(text=text)
 
 
-@router.message(F.text.lower().regexp(r".*((\bсвет\b.*\bесть\b).*|.*(\bесть\b.*\bсвет\b)).*\?"))
+@router.message(F.text.lower().regexp(lighting_ru))
 async def say_current_status(message: Message):
     answers = ("Я знаю, проте не скажу! 🤓", "🤪 расєянську не разумєю", "Запитай мене солов'їною 😍")
     await message.reply(text=choice(answers))
