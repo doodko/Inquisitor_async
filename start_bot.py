@@ -5,7 +5,7 @@ from loguru import logger
 from aiogram import Bot, Dispatcher
 
 
-from bot.handlers import faq, commands, ping, subscriprion, private_messages
+from bot.handlers import faq, commands, ping, subscription, private_messages
 from settings_reader import config
 
 

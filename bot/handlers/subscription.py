@@ -34,7 +34,7 @@ def get_subscription_keyboard():
 async def check_subscription(message: Message):
     user = ss.get_user(user_id=message.from_user.id,
                        full_name=message.from_user.full_name,
-                       nickname=message.from_user.username)
+                       nickname=message.from_user.username or 'empty')
     text = "У вас немає жодної підписки"
 
     if user.subscriptions:
