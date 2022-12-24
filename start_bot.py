@@ -4,7 +4,8 @@ import sys
 from loguru import logger
 from aiogram import Bot, Dispatcher
 
-from bot.handlers import faq, commands, ping, private_messages
+
+from bot.handlers import faq, commands, ping, subscriprion, private_messages
 from settings_reader import config
 
 
@@ -16,6 +17,11 @@ logger.add("logs/{time:YYYY-MM-DD}_private.log",
            format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
            filter=lambda record: "private" in record["extra"],
            rotation="1 day")
+logger.add("logs/{time:YYYY-MM-DD}_events.log",
+           format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
+           filter=lambda record: "event" in record["extra"],
+           rotation="1 day")
+
 
 
 async def main():
@@ -24,9 +30,11 @@ async def main():
     dp.include_router(commands.router)
     dp.include_router(faq.router)
     dp.include_router(ping.router)
+    dp.include_router(subscriprion.router)
     dp.include_router(private_messages.router)
 
-    logger.info('Bot started')
+
+    logger.bind(event=True).info('Bot started')
 
     await bot.delete_webhook(drop_pending_updates=True)
     await send_message(text='Bot started')

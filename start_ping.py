@@ -17,7 +17,6 @@ logger.add("logs/{time:YYYY-MM-DD}_state_switching.log",
            rotation="1 day")
 
 
-
 async def main():
     service = PingService()
     await service.start_service()

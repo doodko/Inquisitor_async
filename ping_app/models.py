@@ -55,7 +55,8 @@ class User(Base):
     __tablename__ = "user"
 
     name: Mapped[str]
-    subscriptions: Mapped[list["Subscription"]] = relationship(back_populates="subscribers")
+    nickname: Mapped[str]
+    subscriptions: Mapped[list["Subscription"]] = relationship(back_populates="subscriber")
 
 
     def __repr__(self):
@@ -70,4 +71,7 @@ class Subscription(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
 
     zone_group: Mapped["Zone"] = relationship(back_populates="subscribers")
-    subscribers: Mapped[list["User"]] = relationship(back_populates="subscriptions")
+    subscriber: Mapped["User"] = relationship(back_populates="subscriptions")
+
+    def __repr__(self):
+        return f"{self.user_id} | {self.zone_id}"

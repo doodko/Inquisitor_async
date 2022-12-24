@@ -75,6 +75,9 @@ class PingService:
         await bot.send_message(chat_id=destination, text=f"{emodji[zone.is_online]}")
         await bot.send_message(chat_id=destination, text=answer)
 
+        for user in zone.subscribers:
+            await bot.send_message(chat_id=user.user_id, text=answer)
+
     @staticmethod
     async def get_current_zones_status() -> str:
         zones = await host_crud_service.get_all_zones()
