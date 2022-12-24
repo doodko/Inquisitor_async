@@ -5,6 +5,7 @@ from random import choice
 
 from aiogram import Bot
 from loguru import logger
+from aiogram.exceptions import TelegramForbiddenError
 
 from ping_app.host_service import host_crud_service
 from ping_app.models import Zone, Host
@@ -76,7 +77,11 @@ class PingService:
         await bot.send_message(chat_id=destination, text=answer)
 
         for user in zone.subscribers:
-            await bot.send_message(chat_id=user.user_id, text=answer)
+            try:
+                await bot.send_message(chat_id=user.user_id, text=answer)
+            except TelegramForbiddenError:
+                logger.bind(event=True).info(f"user {user.user_id} blocked the bot")
+                await asyncio.sleep(1)
 
     @staticmethod
     async def get_current_zones_status() -> str:
@@ -94,4 +99,3 @@ class PingService:
         hosts = await host_crud_service.get_all_hosts()
         for host in hosts:
             await self.ping_host(host=host)
-
