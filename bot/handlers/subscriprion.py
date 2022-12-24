@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from loguru import logger
 
 from ping_app.subscription_service import SubscriptionService
 
@@ -49,12 +50,13 @@ async def subscribe_zone(query: CallbackQuery, callback_data: MySubscription):
     ss.add_subscription(user_id=query.from_user.id, zone_id=callback_data.value)
     answer = f"Ви підписались на сповіщення по зоні №{callback_data.value}. " \
              f"Я спробую повідомити, коли в ній з'явиться чи зникне електроенергія"
-
+    logger.bind(event=True).info(f"user {query.from_user.id} subscribed to zone #{callback_data.value}")
     await query.message.answer(text=answer)
 
 
 @router.callback_query(MySubscription.filter(F.action == 'unsubscribe'))
 async def unsubscribe(query: CallbackQuery):
     ss.delete_all_user_subscriptions(user_id=query.from_user.id)
-    answer = f"І не дзвони мені більше і не пиши!"
+    logger.bind(event=True).info(f"user {query.from_user.id} unsubscribed :(")
+    answer = f"І не дзвони мені більше, і не пиши!"
     await query.message.answer(text=answer)
