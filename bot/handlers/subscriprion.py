@@ -52,6 +52,7 @@ async def subscribe_zone(query: CallbackQuery, callback_data: MySubscription):
              f"Я спробую повідомити, коли в ній з'явиться чи зникне електроенергія"
     logger.bind(event=True).info(f"user {query.from_user.id} subscribed to zone #{callback_data.value}")
     await query.message.answer(text=answer)
+    await query.answer()
 
 
 @router.callback_query(MySubscription.filter(F.action == 'unsubscribe'))
@@ -60,3 +61,4 @@ async def unsubscribe(query: CallbackQuery):
     logger.bind(event=True).info(f"user {query.from_user.id} unsubscribed :(")
     answer = f"І не дзвони мені більше, і не пиши!"
     await query.message.answer(text=answer)
+    await query.answer()
