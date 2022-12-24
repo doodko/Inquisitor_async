@@ -5,6 +5,7 @@ from aiogram.types import Message
 
 from ping_app.ping_service import PingService
 
+
 router = Router()
 ps = PingService()
 
