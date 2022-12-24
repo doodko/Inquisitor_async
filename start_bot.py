@@ -30,7 +30,7 @@ async def main():
     dp.include_router(commands.router)
     dp.include_router(faq.router)
     dp.include_router(ping.router)
-    dp.include_router(subscriprion.router)
+    dp.include_router(subscription.router)
     dp.include_router(private_messages.router)
 
 
