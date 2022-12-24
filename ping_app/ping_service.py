@@ -65,7 +65,8 @@ class PingService:
         await host_crud_service.invert_online_status(instance=zone)
 
         online_message = ('down', 'up')
-        logger.info(f"{zone.name} is {online_message[zone.is_online]} now!")
+        text = f"{zone.name} is {online_message[zone.is_online]} now!"
+        logger.bind(zone=True).info(text)
 
         answer = f"{current_zone_message}"
 

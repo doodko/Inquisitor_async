@@ -4,7 +4,8 @@ import sys
 from loguru import logger
 from aiogram import Bot, Dispatcher
 
-from bot.handlers import faq, commands, ping, subscriprion
+
+from bot.handlers import faq, commands, ping, subscriprion, private_messages
 from settings_reader import config
 
 
@@ -22,6 +23,7 @@ logger.add("logs/{time:YYYY-MM-DD}_events.log",
            rotation="1 day")
 
 
+
 async def main():
     dp = Dispatcher()
 
@@ -29,6 +31,8 @@ async def main():
     dp.include_router(faq.router)
     dp.include_router(ping.router)
     dp.include_router(subscriprion.router)
+    dp.include_router(private_messages.router)
+
 
     logger.bind(event=True).info('Bot started')
 
