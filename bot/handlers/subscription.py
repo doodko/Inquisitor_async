@@ -50,9 +50,9 @@ async def check_subscription(message: Message):
         await message.delete()
 
         user = message.from_user
-        answers = ("давай не будемо на людях, перейдемо в особисті?",
-                   "зараз у мене черга, можу прийняти через 2-3 тижні, пів-року максимум.",
-                   "а ви добре себе поводили в цьому році?")
+        answers = ("давай не будемо на людях, перейдемо в особисті\?",
+                   "зараз у мене черга, можу прийняти через 2\-3 тижні, пів-року максимум\.",
+                   "а ви добре себе поводили в цьому році\?")
         text = f"[{user.full_name}](tg://user?id={user.id}), {random.choice(answers)}"
         await message.answer(text=text, parse_mode='MarkdownV2')
 
