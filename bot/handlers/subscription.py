@@ -48,11 +48,13 @@ async def check_subscription(message: Message):
 
     elif message.chat.type in ('group', 'supergroup'):
         await message.delete()
+
+        user = message.from_user
         answers = ("давай не будемо на людях, перейдемо в особисті?",
                    "зараз у мене черга, можу прийняти через 2-3 тижні, пів-року максимум.",
                    "а ви добре себе поводили в цьому році?")
-        text = f"{message.from_user.full_name}, {random.choice(answers)}"
-        await message.answer(text=text)
+        text = f"[{user.full_name}](tg://user?id={user.id}), {random.choice(answers)}"
+        await message.answer(text=text, parse_mode='MarkdownV2')
 
 
 @router.callback_query(MySubscription.filter(F.action == 'subscribe'))
