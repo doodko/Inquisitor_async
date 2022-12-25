@@ -1,3 +1,4 @@
+import random
 from typing import Optional
 
 from aiogram import Router, F
@@ -11,7 +12,7 @@ from ping_app.subscription_service import SubscriptionService
 
 
 router = Router()
-router.message.filter(F.chat.type.in_('private'))
+# router.message.filter(F.chat.type.in_('private'))
 ss = SubscriptionService()
 
 
@@ -23,7 +24,7 @@ class MySubscription(CallbackData, prefix="my_sub"):
 def get_subscription_keyboard():
     builder = InlineKeyboardBuilder()
     builder.button(text="Перші лінії", callback_data=MySubscription(action="subscribe", value=1).pack())
-    builder.button(text="Лу, Соборна", callback_data=MySubscription(action="subscribe", value=2).pack())
+    builder.button(text="ЛУ, Соборна", callback_data=MySubscription(action="subscribe", value=2).pack())
     builder.button(text="Відписатись", callback_data=MySubscription(action="unsubscribe").pack())
     builder.adjust(2)
 
@@ -47,7 +48,10 @@ async def check_subscription(message: Message):
 
     elif message.chat.type in ('group', 'supergroup'):
         await message.delete()
-        text = f"{message.from_user.full_name}, давай не будемо на людях, перейдемо в особисті?"
+        answers = ("давай не будемо на людях, перейдемо в особисті?",
+                   "зараз у мене черга, можу прийняти через 2-3 тижні, пів-року максимум.",
+                   "а ви добре себе поводили в цьому році?")
+        text = f"{message.from_user.full_name}, {random.choice(answers)}"
         await message.answer(text=text)
 
 
