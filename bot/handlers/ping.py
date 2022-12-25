@@ -22,8 +22,9 @@ async def cmd_start_ping(message: Message):
 @router.message(Command(commands=['current_status']))
 async def cmd_current_status(message: Message):
     await message.delete()
-    text = await ps.get_current_zones_status()
-    await message.answer(text=text)
+    if message.chat.type == 'private':
+        text = await ps.get_current_zones_status()
+        await message.answer(text=text)
 
 
 @router.message(Command(commands=['update_zone_time']))

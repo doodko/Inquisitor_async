@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 
 from ping_app.db import Session
@@ -23,7 +25,7 @@ class SubscriptionService:
         subscription = self.session.scalar(query)
 
         if not subscription:
-            subscription = Subscription(user_id=user_id, zone_id=zone_id)
+            subscription = Subscription(user_id=user_id, zone_id=zone_id, created_at=datetime.now())
             self.session.add(subscription)
             self.session.commit()
         return subscription

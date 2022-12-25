@@ -32,17 +32,23 @@ def get_subscription_keyboard():
 
 @router.message(Command(commands=['subscribe']))
 async def check_subscription(message: Message):
-    user = ss.get_user(user_id=message.from_user.id,
-                       full_name=message.from_user.full_name,
-                       nickname=message.from_user.username or 'empty')
-    text = "У вас немає жодної підписки"
+    if message.chat.type == 'private':
+        user = ss.get_user(user_id=message.from_user.id,
+                           full_name=message.from_user.full_name,
+                           nickname=message.from_user.username or 'empty')
+        text = "У вас немає жодної підписки"
 
-    if user.subscriptions:
-        subscriptions_list = [z.zone_group.name for z in user.subscriptions]
-        text = f"Ви підписані на: {', '.join(subscriptions_list)}"
+        if user.subscriptions:
+            subscriptions_list = [z.zone_group.name for z in user.subscriptions]
+            text = f"Ви підписані на: {', '.join(subscriptions_list)}"
 
-    text += "\nОберіть зону, по якій хотіли би отримувати повідомлення"
-    await message.answer(text, reply_markup=get_subscription_keyboard())
+        text += "\nОберіть зону, по якій хотіли би отримувати повідомлення"
+        await message.answer(text, reply_markup=get_subscription_keyboard())
+
+    elif message.chat.type in ('group', 'supergroup'):
+        await message.delete()
+        text = f"{message.from_user.full_name}, давай не будемо на людях, перейдемо в особисті?"
+        await message.answer(text=text)
 
 
 @router.callback_query(MySubscription.filter(F.action == 'subscribe'))
