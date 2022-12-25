@@ -1,6 +1,7 @@
 from random import choice
 
 from aiogram import Router, F
+from aiogram.filters import Command
 from aiogram.types import Message
 
 from ping_app.ping_service import PingService
@@ -44,6 +45,16 @@ async def say_current_status(message: Message):
 
 
 @router.message(F.text.lower().regexp(lighting_ru))
-async def say_current_status(message: Message):
+async def say_current_status_rus(message: Message):
     answers = ("Я знаю, проте не скажу! 🤓", "🤪 расєянську не разумєю", "Запитай мене солов'їною 😍")
     await message.reply(text=choice(answers))
+
+
+@router.message(Command(commands=['current_status']))
+async def cmd_current_status(message: Message):
+    await message.delete()
+    if message.chat.type == 'private':
+        text = await ps.get_current_zones_status()
+        await message.answer(text)
+
+
