@@ -8,10 +8,10 @@ class Settings(BaseSettings):
     admins: set
     db: str
     ping_period: int = 60
-    ping_flag: bool = False
+    ping_flag: bool = True
 
     class Config:
-        env_file = "../.env"
+        env_file = ".env"
 
 
 config = Settings()
