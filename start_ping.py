@@ -8,10 +8,10 @@ from ping_app.ping_service import PingService
 
 logger.remove()
 logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{message}</level>")
-logger.add("logs/{time:YYYY-MM-DD}_ping.log", rotation="10:00",
+logger.add("logs/{time:YYYY-MM-DD}_ping.log", rotation="1 day",
            format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
            level='INFO')
-logger.add("logs/{time:YYYY-MM-DD}_state_switching.log",
+logger.add("logs/zone_state_switching.log",
            format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
            filter=lambda record: "zone" in record["extra"],
            rotation="1 day")

@@ -87,11 +87,12 @@ class PingService:
 
     @staticmethod
     async def notify_subscribers(zone: Zone, message: str):
-        for user in zone.subscribers:
+        for subscription in zone.subscribers:
             try:
-                await bot.send_message(chat_id=user.user_id, text=message)
+                await bot.send_message(chat_id=subscription.user_id, text=message)
             except TelegramForbiddenError:
-                logger.bind(event=True).info(f"user {user.user_id} blocked the bot")
+                logger.info(f"user {subscription.user_id} blocked the bot")
+                host_crud_service.session.delete(subscription)
                 await asyncio.sleep(1)
 
     @staticmethod
