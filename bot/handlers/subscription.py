@@ -11,7 +11,7 @@ from ping_app.subscription_service import SubscriptionService
 
 
 router = Router()
-router.message.filter(F.chat.type.in_('private'))
+
 ss = SubscriptionService()
 
 
@@ -23,7 +23,7 @@ class MySubscription(CallbackData, prefix="my_sub"):
 def get_subscription_keyboard():
     builder = InlineKeyboardBuilder()
     builder.button(text="Перші лінії", callback_data=MySubscription(action="subscribe", value=1).pack())
-    builder.button(text="Лу, Соборна", callback_data=MySubscription(action="subscribe", value=2).pack())
+    builder.button(text="ЛУ, Соборна", callback_data=MySubscription(action="subscribe", value=2).pack())
     builder.button(text="Відписатись", callback_data=MySubscription(action="unsubscribe").pack())
     builder.adjust(2)
 
@@ -32,17 +32,28 @@ def get_subscription_keyboard():
 
 @router.message(Command(commands=['subscribe']))
 async def check_subscription(message: Message):
-    user = ss.get_user(user_id=message.from_user.id,
-                       full_name=message.from_user.full_name,
-                       nickname=message.from_user.username or 'empty')
-    text = "У вас немає жодної підписки"
+    if message.chat.type == 'private':
+        user = ss.get_user(user_id=message.from_user.id,
+                           full_name=message.from_user.full_name,
+                           nickname=message.from_user.username or 'empty')
+        text = "У вас немає жодної підписки"
 
-    if user.subscriptions:
-        subscriptions_list = [z.zone_group.name for z in user.subscriptions]
-        text = f"Ви підписані на: {', '.join(subscriptions_list)}"
+        if user.subscriptions:
+            subscriptions_list = [z.zone_group.name for z in user.subscriptions]
+            text = f"Ви підписані на: {', '.join(subscriptions_list)}"
 
-    text += "\nОберіть зону, по якій хотіли би отримувати повідомлення"
-    await message.answer(text, reply_markup=get_subscription_keyboard())
+        text += "\nОберіть зону, по якій хотіли би отримувати повідомлення"
+        await message.answer(text, reply_markup=get_subscription_keyboard())
+
+    elif message.chat.type in ('group', 'supergroup'):
+        await message.delete()
+
+        # user = message.from_user
+        # answers = ("давай не будемо на людях, перейдемо в особисті\?",
+        #            "зараз у мене черга, можу прийняти через 2\-3 тижні, пів-року максимум\.",
+        #            "а ви добре себе поводили в цьому році\?")
+        # text = f"[{user.full_name}](tg://user?id={user.id}), {random.choice(answers)}"
+        # await message.answer(text=text, parse_mode='MarkdownV2')
 
 
 @router.callback_query(MySubscription.filter(F.action == 'subscribe'))

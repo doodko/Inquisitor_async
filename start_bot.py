@@ -23,16 +23,14 @@ logger.add("logs/{time:YYYY-MM-DD}_events.log",
            rotation="1 day")
 
 
-
 async def main():
     dp = Dispatcher()
 
     dp.include_router(commands.router)
     dp.include_router(faq.router)
     dp.include_router(ping.router)
-    dp.include_router(subscriprion.router)
+    dp.include_router(subscription.router)
     dp.include_router(private_messages.router)
-
 
     logger.bind(event=True).info('Bot started')
 

@@ -48,3 +48,8 @@ async def cmd_read_ruled(message: Message):
                      f"[правилами групи]({rules_url}), будь ласка\."
 
             await message.answer(text=answer, parse_mode='MarkdownV2')
+
+
+@router.message(Command(commands=['stats']))
+async def cmd_stats(message: Message):
+    await message.answer('# todo statistics menu')
