@@ -10,11 +10,13 @@ from aiogram.exceptions import TelegramForbiddenError
 from ping_app.host_service import host_crud_service
 from ping_app.models import Zone, Host
 from ping_app.notifier_service import NotifierService
+from ping_app.periods_service import PeriodService
 from settings_reader import config
 
 
 bot = Bot(token=config.token.get_secret_value(), parse_mode="HTML")
 notifier = NotifierService()
+period_service = PeriodService()
 
 
 class PingService:
@@ -54,31 +56,40 @@ class PingService:
                 await self.check_zone_status(zone=host.zone_group)
 
     async def check_zone_status(self, zone: Zone):
-        zone_status = any([await self.ping_host(host=host) for host in zone.addresses])
+        zone_status = False
+        for host in zone.addresses:
+            is_online = await self.ping_host(host=host)
+            if is_online:
+                zone_status = True
+                logger.debug(f"zone {zone.id} is online")
+                break
 
         if zone_status != zone.is_online:
             await self.zone_status_switched(zone=zone)
 
-    @staticmethod
-    async def zone_status_switched(zone: Zone):
-        current_zone_message = notifier.get_changed_state(instance=zone)
-        logger.debug(current_zone_message)
-        await host_crud_service.invert_online_status(instance=zone)
-
-        online_message = ('down', 'up')
+    async def zone_status_switched(self, zone: Zone):
+        online_message = ('up', 'down')
         text = f"{zone.name} is {online_message[zone.is_online]} now!"
         logger.bind(zone=True).info(text)
 
-        answer = f"{current_zone_message}"
+        current_zone_message = notifier.get_changed_state(instance=zone)
+        await host_crud_service.invert_online_status(instance=zone)
+        await period_service.start_stop_period(zone=zone)
+        await self.notify_main_group(zone=zone, message=current_zone_message)
+        await self.notify_subscribers(zone=zone, message=current_zone_message)
 
-        emodji = ('⚡', '💡')
+    @staticmethod
+    async def notify_main_group(zone: Zone, message: str):
         destination = '-1001092707720' # config.superuser_id
+        emodji = ('⚡', '💡')
         await bot.send_message(chat_id=destination, text=f"{emodji[zone.is_online]}")
-        await bot.send_message(chat_id=destination, text=answer)
+        await bot.send_message(chat_id=destination, text=message)
 
+    @staticmethod
+    async def notify_subscribers(zone: Zone, message: str):
         for user in zone.subscribers:
             try:
-                await bot.send_message(chat_id=user.user_id, text=answer)
+                await bot.send_message(chat_id=user.user_id, text=message)
             except TelegramForbiddenError:
                 logger.bind(event=True).info(f"user {user.user_id} blocked the bot")
                 await asyncio.sleep(1)
