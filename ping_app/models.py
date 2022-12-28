@@ -43,12 +43,13 @@ class Period(Base):
     __tablename__ = "period"
 
     zone: Mapped[int] = mapped_column(ForeignKey("zone.id"))
-    is_online: Mapped[bool] = mapped_column(Boolean, default=False)
-    start: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
-    end: Mapped[datetime] = mapped_column(DateTime)
-    duration: Mapped[int]
+    start: Mapped[datetime]
+    end: Mapped[datetime]
 
     zone_group: Mapped["Zone"] = relationship(back_populates="periods")
+
+    def __repr__(self):
+        return f"{self.zone} | {self.start} - {self.end or datetime.now()}"
 
 
 class User(Base):
