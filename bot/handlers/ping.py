@@ -19,13 +19,6 @@ async def cmd_start_ping(message: Message):
     await message.answer(text=f'Ping service switched to {config.ping_flag}')
 
 
-@router.message(Command(commands=['current_status']))
-async def cmd_current_status(message: Message):
-    await message.delete()
-    text = await ps.get_current_zones_status()
-    await message.answer(text=text)
-
-
 @router.message(Command(commands=['update_zone_time']))
 async def cmd_update_time(message: Message):
     command, zone_id, new_time = message.text.split()
