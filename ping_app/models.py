@@ -1,7 +1,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import String, Boolean, ForeignKey, DateTime, Integer
+from sqlalchemy import String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -32,7 +32,7 @@ class Zone(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
 
     addresses: Mapped[list["Host"]] = relationship(back_populates="zone_group", cascade="all, delete-orphan")
-    periods: Mapped[list["Period"]] = relationship(back_populates="zone_group", cascade="all, delete-orphan")
+    periods: Mapped[list["Period"]] = relationship(back_populates="zone_inst")
     subscribers: Mapped[list["Subscription"]] = relationship(back_populates="zone_group", cascade="all, delete-orphan")
 
     def __repr__(self):
@@ -46,7 +46,7 @@ class Period(Base):
     start: Mapped[datetime]
     end: Mapped[datetime]
 
-    zone_group: Mapped["Zone"] = relationship(back_populates="periods")
+    zone_inst: Mapped["Zone"] = relationship(back_populates="periods")
 
     def __repr__(self):
         return f"{self.zone} | {self.start} - {self.end or datetime.now()}"
@@ -58,7 +58,6 @@ class User(Base):
     name: Mapped[str]
     nickname: Mapped[str]
     subscriptions: Mapped[list["Subscription"]] = relationship(back_populates="subscriber")
-
 
     def __repr__(self):
         return f"{self.name}"
