@@ -1,6 +1,7 @@
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.types import Message, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from settings_reader import config
 
@@ -53,3 +54,17 @@ async def cmd_read_ruled(message: Message):
 @router.message(Command(commands=['stats']))
 async def cmd_stats(message: Message):
     await message.answer('# todo statistics menu')
+
+
+@router.message(Command(commands=['donate']))
+async def cmd_donate(message: Message):
+    text = "Подобається сервіс\? Ви можете [підтримати розробника](https://send.monobank.ua/jar/CXDBhb4LV) монетою"
+
+    if message.chat.type in ('group', 'supergroup'):
+        await message.delete()
+    if message.chat.type == 'private':
+        builder = InlineKeyboardBuilder()
+        builder.row(InlineKeyboardButton(text="Підтримати", url="https://send.monobank.ua/jar/CXDBhb4LV"))
+
+        await message.answer('Подобається сервіс? Ви можете подякувати та підтримати розробника монетою 💰',
+                             reply_markup=builder.as_markup())
