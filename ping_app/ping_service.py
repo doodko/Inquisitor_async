@@ -93,7 +93,7 @@ class PingService:
             except TelegramForbiddenError:
                 logger.info(f"user {subscription.user_id} blocked the bot")
                 host_crud_service.session.delete(subscription)
-                await asyncio.sleep(1)
+                host_crud_service.session.commit()
 
     @staticmethod
     async def get_current_zones_status() -> str:
