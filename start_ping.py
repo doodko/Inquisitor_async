@@ -13,8 +13,7 @@ logger.add("logs/{time:YYYY-MM-DD}_ping.log", rotation="1 day",
            level='INFO')
 logger.add("logs/zone_state_switching.log",
            format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
-           filter=lambda record: "zone" in record["extra"],
-           rotation="1 day")
+           filter=lambda record: "zone" in record["extra"])
 
 
 async def main():
