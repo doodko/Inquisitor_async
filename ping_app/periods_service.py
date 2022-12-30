@@ -37,7 +37,13 @@ class PeriodService:
     def calculate_statistics(self, start_date: datetime, finish_date: datetime):
         pass
 
-    def get_periods_by_date(self, start_date: datetime, finish_date: datetime):
+    def get_periods_by_date(self, search_date: datetime):
+        periods = self.session.query(Period).\
+            filter(Period.start < (search_date + timedelta(days=1)), Period.end > search_date).all()
+
+        return periods
+
+    def get_periods_by_interval(self, start_date: datetime, finish_date: datetime):
         query = select(Period).where(Period.start.between(start_date, finish_date + timedelta(days=1)) |
                                      Period.end.between(start_date, finish_date + timedelta(days=1)))\
             .order_by(Period.start)
@@ -46,18 +52,34 @@ class PeriodService:
         return periods
 
     @staticmethod
-    def convert_date_string(datesting: str) -> datetime:
-        return datetime.strptime(datesting, "%Y-%m-%d")
+    def count_period_duration(period: Period, search_date: datetime) -> timedelta:
+        start, finish = period.start, period.end
+        if not (period.end - period.start).seconds:
+            finish = datetime.now()
+        if start < search_date:
+            start = search_date
+        if finish > search_date + timedelta(days=1):
+            finish = search_date + timedelta(days=1)
+
+        duration = finish - start
+        logger.debug(f"{period.zone} {finish} - {start} = {duration}")
+        return duration
 
     @staticmethod
-    def count_period_duration(period: Period, start_date: datetime) -> timedelta:
-        if period.start.date() == period.end.date():
-            duration = period.end - period.start
-        elif period.start.date() == start_date.date():
-            duration = start_date + timedelta(days=1) - period.start
-        elif period.end.date() == start_date.date():
-            duration = period.end - start_date
-        else:
-            duration = timedelta(0)
+    def get_date_period_from_message(text: str) -> tuple[datetime, datetime]:
+        yesterday = datetime.today() - timedelta(days=1)
 
-        return duration
+        def convert_string_to_date_or_yesterday(sting: str) -> datetime:
+            try:
+                return datetime.strptime(sting, "%Y-%m-%d")
+            except ValueError:
+                return yesterday
+
+        start_date = finish_date = yesterday
+        if len(text.split()) == 2:
+            start_date = finish_date = convert_string_to_date_or_yesterday(text.split()[1])
+        if len(text.split()) == 3:
+            start_date = convert_string_to_date_or_yesterday(text.split()[1])
+            finish_date = convert_string_to_date_or_yesterday(text.split()[2])
+
+        return start_date, finish_date
