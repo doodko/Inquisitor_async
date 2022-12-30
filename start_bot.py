@@ -13,11 +13,11 @@ bot = Bot(token=config.token.get_secret_value(), parse_mode="HTML")
 
 logger.remove()
 logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{message}</level>")
-logger.add("logs/{time:YYYY-MM-DD}_private.log",
+logger.add("logs/{time:YYYY-MM-DD}/private.log",
            format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
            filter=lambda record: "private" in record["extra"],
            rotation="1 day")
-logger.add("logs/{time:YYYY-MM-DD}_events.log",
+logger.add("logs/{time:YYYY-MM-DD}/events.log",
            format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
            filter=lambda record: "event" in record["extra"],
            rotation="1 day")
