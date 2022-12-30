@@ -112,7 +112,7 @@ class PingService:
                            'Давай продовжимо наше спілкування приватно?',
                            'Пропоную надалі балакати в особистих повідомленнях :)',
                            'Не бійся зробити перший крок, просто напиши мені привіт')
-        answer += '\n' + choice(warning_message)
+        answer += '\n\n' + choice(warning_message)
         return answer
 
     async def ping_all_hots(self):
