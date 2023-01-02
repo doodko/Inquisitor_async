@@ -37,16 +37,21 @@ async def say_index(message: Message):
 @router.message(F.text.lower().regexp(lighting_ukr))
 async def say_current_status(message: Message):
     if message.chat.type in ('group', 'supergroup'):
-        text = await ps.get_current_zones_status_short()
+        answers = ('Запитай те саме у мене в особистих повідомленнях і я підкажу ;)',
+                   "Я можу повідомляти коли з'являється чи зникає світло в вашому будинку",
+                   "Почекаємо поки добрі люди підкажуть",
+                   "Може є, а може ні. 50/50")
+
+        await message.reply(choice(answers))
     elif message.chat.type == 'private':
         text = await ps.get_current_zones_status()
-
-    await message.reply(text=text)
+        await message.answer(text=text)
 
 
 @router.message(F.text.lower().regexp(lighting_ru))
 async def say_current_status_rus(message: Message):
-    answers = ("Я знаю, проте не скажу! 🤓", "🤪 расєянську не разумєю", "Запитай мене солов'їною 😍")
+    answers = ("Я знаю, проте не скажу! 🤓", "🤪 расєянську не разумєю",
+               "Запитай мене солов'їною 😍", "Зроблю вигляд, що я цього не помітив")
     await message.reply(text=choice(answers))
 
 
