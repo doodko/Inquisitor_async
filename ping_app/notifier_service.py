@@ -8,11 +8,6 @@ class NotifierService:
         self._current_status = ("без електроенергії", "з електроенергією")
         self._new_status = ("з'явилось світло", "зникло світло")
 
-    def get_current_state_short(self, instance: Zone) -> str:
-        status = instance.is_online
-        return f"{self._emodji[status]} <b>{instance.name}</b> {self._new_status[not status]} о " \
-               f"{instance.updated_at.strftime('%H:%M')}"
-
     def get_current_state(self, instance: Zone | Host) -> str:
         status = instance.is_online
         return f"{self._emodji[status]} <b>{instance.name}</b> {self._new_status[not status]} о " \

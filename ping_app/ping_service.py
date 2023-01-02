@@ -101,19 +101,6 @@ class PingService:
         zone_statuses = [notifier.get_current_state(zone) for zone in zones]
         return '\n'.join(zone_statuses)
 
-    @staticmethod
-    async def get_current_zones_status_short() -> str:
-        zones = await host_crud_service.get_all_zones()
-        zone_statuses = [notifier.get_current_state_short(zone) for zone in zones]
-        answer = '\n'.join(zone_statuses)
-        warning_message = ('Не бійся запитати мене особисто, я не кусаюсь ;)',
-                           'Нащо нам ці сторонні очі, давай спілкуватись приватно 🤫',
-                           'Скоро мені заборонять тут відповідати, пиши краще в лічку',
-                           'Давай продовжимо наше спілкування приватно?',
-                           'Пропоную надалі балакати в особистих повідомленнях :)',
-                           'Не бійся зробити перший крок, просто напиши мені привіт')
-        answer += '\n\n' + choice(warning_message)
-        return answer
 
     async def ping_all_hots(self):
         hosts = await host_crud_service.get_all_hosts()
