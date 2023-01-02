@@ -61,7 +61,6 @@ class PingService:
             is_online = await self.ping_host(host=host)
             if is_online:
                 zone_status = True
-                logger.debug(f"zone {zone.id} is online")
                 break
 
         if zone_status != zone.is_online:
@@ -75,6 +74,7 @@ class PingService:
         current_zone_message = notifier.get_changed_state(instance=zone)
         await host_crud_service.invert_online_status(instance=zone)
         await period_service.start_stop_period(zone=zone)
+        await self.change_ping_periodicity('60')
         await self.notify_main_group(zone=zone, message=current_zone_message)
         await self.notify_subscribers(zone=zone, message=current_zone_message)
 
@@ -95,14 +95,24 @@ class PingService:
                 host_crud_service.session.delete(subscription)
                 host_crud_service.session.commit()
 
+    async def ping_all_hots(self):
+        hosts = await host_crud_service.get_all_hosts()
+        for host in hosts:
+            await self.ping_host(host=host)
+
     @staticmethod
     async def get_current_zones_status() -> str:
         zones = await host_crud_service.get_all_zones()
         zone_statuses = [notifier.get_current_state(zone) for zone in zones]
         return '\n'.join(zone_statuses)
 
+    @staticmethod
+    async def change_ping_periodicity(seconds: str) -> str:
+        message = f"invalid value"
+        if seconds.isnumeric():
+            if int(seconds) != config.ping_period:
+                config.ping_period = int(seconds)
+                message = f"ping period was changed to {seconds} seconds"
+                logger.bind(event=True).info(message)
 
-    async def ping_all_hots(self):
-        hosts = await host_crud_service.get_all_hosts()
-        for host in hosts:
-            await self.ping_host(host=host)
+        return message
