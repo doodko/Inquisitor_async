@@ -10,8 +10,8 @@ class NotifierService:
 
     def get_current_state(self, instance: Zone | Host) -> str:
         status = instance.is_online
-        return f"{self._emodji[status]} <b>{instance.name}</b> {self._new_status[not status]} о " \
-               f"{instance.updated_at.strftime('%H:%M')}, " \
+        return f"{self._emodji[status]} <b>{instance.name}</b> {self._new_status[not status]} " \
+               f"<b>{instance.updated_at.strftime('%d/%m/%Y')}</b> о <b>{instance.updated_at.strftime('%H:%M')}</b>, " \
                f"{self._current_status[status]} вже {self._calculate_hours_and_minutes(instance)}"
 
     def get_changed_state(self, instance: Zone | Host) -> str:
