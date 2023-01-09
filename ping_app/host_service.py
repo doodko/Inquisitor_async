@@ -32,6 +32,9 @@ class HostService:
     async def get_other_zone(self, zone: Zone) -> Zone:
         return self.session.scalars(select(Zone).where(Zone.id != zone.id)).one()
 
+    async def get_other_hosts_in_zone(self, host: Host) -> list[Host]:
+        return self.session.query(Host).filter(Host.zone == host.zone, Host.id != host.id).all()
+
     async def _find_host_by_ip(self, ip_address: str) -> Host:
         query = select(Host).where(Host.address == ip_address)
         result = self.session.scalar(query)
