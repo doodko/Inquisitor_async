@@ -53,11 +53,25 @@ class PingService:
             host_status = await self.ping_host(host)
 
             if host_status != host.zone_group.is_online:
-                await self.check_zone_status(zone=host.zone_group)
+                await self.check_other_hosts(switched_host=host)
 
     async def check_zone_status(self, zone: Zone):
         zone_status = False
         for host in zone.addresses:
+            is_online = await self.ping_host(host=host)
+            if is_online:
+                zone_status = True
+                break
+
+        if zone_status != zone.is_online:
+            await self.zone_status_switched(zone=zone)
+
+    async def check_other_hosts(self, switched_host: Host):
+        zone_status = False
+        zone = switched_host.zone_group
+        other_hosts = await host_crud_service.get_other_hosts_in_zone(host=switched_host)
+
+        for host in other_hosts:
             is_online = await self.ping_host(host=host)
             if is_online:
                 zone_status = True
@@ -74,8 +88,8 @@ class PingService:
         current_zone_message = notifier.get_changed_state(instance=zone)
         await host_crud_service.invert_online_status(instance=zone)
         await period_service.start_stop_period(zone=zone)
-        await self.notify_main_group(zone=zone, message=current_zone_message)
-        await self.notify_subscribers(zone=zone, message=current_zone_message)
+        # await self.notify_main_group(zone=zone, message=current_zone_message)
+        # await self.notify_subscribers(zone=zone, message=current_zone_message)
 
     @staticmethod
     async def notify_main_group(zone: Zone, message: str):
