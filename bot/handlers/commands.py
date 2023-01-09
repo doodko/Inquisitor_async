@@ -1,12 +1,16 @@
-from aiogram import Router, F
+from datetime import datetime
+
+from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from ping_app.periods_service import PeriodService
 from settings_reader import config
 
 
 router = Router()
+ps = PeriodService()
 
 
 @router.message(Command(commands=['health_check']))
@@ -53,7 +57,16 @@ async def cmd_read_ruled(message: Message):
 
 @router.message(Command(commands=['stats']))
 async def cmd_stats(message: Message):
-    await message.answer('# todo statistics menu')
+    start, end = ps.get_date_period_from_message(message.text)
+    if start > end:
+        start, end = end, start
+    text = f"Статистика за період з <b>{start.date()}</b> по <b>{end.date()}</b>"
+    if start == end:
+        text = f"Статистика за <b>{start.date()}</b>"
+    if start.date() >= datetime.today().date() or end.date() >= datetime.today().date():
+        text = "Зараз дістану кришталеву і загляну в майбутнє"
+
+    await message.answer(text=text)
 
 
 @router.message(Command(commands=['donate']))
