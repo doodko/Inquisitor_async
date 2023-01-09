@@ -88,8 +88,8 @@ class PingService:
         current_zone_message = notifier.get_changed_state(instance=zone)
         await host_crud_service.invert_online_status(instance=zone)
         await period_service.start_stop_period(zone=zone)
-        # await self.notify_main_group(zone=zone, message=current_zone_message)
-        # await self.notify_subscribers(zone=zone, message=current_zone_message)
+        await self.notify_main_group(zone=zone, message=current_zone_message)
+        await self.notify_subscribers(zone=zone, message=current_zone_message)
 
     @staticmethod
     async def notify_main_group(zone: Zone, message: str):
