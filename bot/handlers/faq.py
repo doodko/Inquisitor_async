@@ -61,5 +61,3 @@ async def cmd_current_status(message: Message):
     if message.chat.type == 'private':
         text = await ps.get_current_zones_status()
         await message.answer(text)
-
-

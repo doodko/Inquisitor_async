@@ -80,8 +80,8 @@ class ElectricityAvailability(Base):
     __tablename__ = "statistics"
 
     date: Mapped[date] = mapped_column(Date, unique=True)
-    z1_duration: Mapped[timedelta]
-    z2_duration: Mapped[timedelta]
+    zone1_duration: Mapped[timedelta]
+    zone2_duration: Mapped[timedelta]
 
     def __repr__(self):
-        return f"{self.date} - {self.z1_duration} | {self.z2_duration}"
+        return f"{self.date} - {self.zone1_duration} | {self.zone2_duration}"
