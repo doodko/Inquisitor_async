@@ -1,7 +1,6 @@
+from datetime import datetime, date, timedelta
 
-from datetime import datetime
-
-from sqlalchemy import String, Boolean, ForeignKey, DateTime
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, Date
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -75,3 +74,14 @@ class Subscription(Base):
 
     def __repr__(self):
         return f"{self.user_id} | {self.zone_id}"
+
+
+class ElectricityAvailability(Base):
+    __tablename__ = "statistics"
+
+    date: Mapped[date] = mapped_column(Date, unique=True)
+    zone1_duration: Mapped[timedelta]
+    zone2_duration: Mapped[timedelta]
+
+    def __repr__(self):
+        return f"{self.date} - {self.zone1_duration} | {self.zone2_duration}"
