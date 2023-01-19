@@ -34,10 +34,10 @@ async def cmd_ask_volodya(message: Message):
                 query = message.text.replace(command, "").strip()
 
             answer = f"""
-            Спробуйте запитати у Володі:
-            1. Відкриваємо чат з ботом @pkvartal_bot
-            2. Пишемо йому запит <b>{query}</b>
-            3. Отримуємо релевантні результати. Профіт!"""
+Спробуйте запитати у Володі:
+1. Відкриваємо чат з ботом @pkvartal_bot
+2. Пишемо йому запит <b>{query}</b>
+3. Отримуємо релевантні результати. Профіт!"""
 
             await message.reply_to_message.reply(text=answer)
 
