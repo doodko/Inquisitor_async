@@ -6,11 +6,14 @@ from aiogram.types import Message, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from ping_app.periods_service import PeriodService
+from ping_app.statistics_service import StatisticsService
 from settings_reader import config
 
 
 router = Router()
+
 ps = PeriodService()
+statistics = StatisticsService()
 
 
 @router.message(Command(commands=['health_check']))
@@ -57,22 +60,23 @@ async def cmd_read_ruled(message: Message):
 
 @router.message(Command(commands=['stats']))
 async def cmd_stats(message: Message):
-    start, end = ps.get_date_period_from_message(message.text)
+    start, end = statistics.get_date_period_from_message(message.text)
     if start > end:
         start, end = end, start
     text = f"Статистика за період з <b>{start.date()}</b> по <b>{end.date()}</b>"
-    if start == end:
-        text = f"Статистика за <b>{start.date()}</b>"
-    if start.date() >= datetime.today().date() or end.date() >= datetime.today().date():
-        text = "Зараз дістану кришталеву і загляну в майбутнє"
+    text += "\nЦя функція ще в розробці, зачекайте"
+    if start < datetime(2022, 12, 22):
+        text = "Ох і давно ж це було, вже й не пригадаю"
+    elif start.date() >= datetime.today().date() or end.date() >= datetime.today().date():
+        text = "🔮 Зараз дістану свою кришталеву кулю і загляну в майбутнє..."
+    elif start == end:
+        text = statistics.make_stats_message(start)
 
     await message.answer(text=text)
 
 
 @router.message(Command(commands=['donate']))
 async def cmd_donate(message: Message):
-    text = "Подобається сервіс\? Ви можете [підтримати розробника](https://send.monobank.ua/jar/CXDBhb4LV) монетою"
-
     if message.chat.type in ('group', 'supergroup'):
         await message.delete()
     if message.chat.type == 'private':

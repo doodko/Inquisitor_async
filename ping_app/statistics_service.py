@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
+from random import choice, sample
 
+from loguru import logger
 from sqlalchemy import select
 
 from ping_app.db import Session
@@ -10,15 +12,35 @@ class StatisticsService:
     def __init__(self, session: Session = Session()):
         self.session = session
 
-    def create_daily_stats(self, date: datetime):
+    def make_stats_message(self, date: datetime) -> str:
+        stats = self.get_daily_stats(date=date)
+        emoji = sample("🕓🕙🕝⚡✨🔦💡🗿🌟🌈👹🤳⏳🍑⏰🌤🔥🎇🎆", 2)
+        light_on = sample(('сяяли наче новорічна ялинка', 'були зі світлом', 'електрохарчувались',
+                    'світились', 'горіли вікна', 'заряджали свої екофлови', 'мали змогу помитися',
+                    'сварились в чаті', 'були яскраві', 'були щасливі', 'були з живленням',
+                    'мали електроенергію', 'підживлювались', 'були прекрасні'), 2)
+
+        message = f"Спостереження за <b>{stats.date}</b>:\n" \
+                  f"{emoji[0]} Перші лінії {light_on[0]} <b>{self.timedelta_to_human_readable(stats.zone1_duration)}</b>\n" \
+                  f"{emoji[1]} ЛУ/Соборна {light_on[1]} <b>{self.timedelta_to_human_readable(stats.zone2_duration)}</b>"
+
+        message += "\n\nЦікавить інша дата? Введіть команду в такому форматі:\n/stats <i>РРРР-ММ-ДД</i>"
+
+        return message
+
+    def create_daily_stats(self, date: datetime) -> ElectricityAvailability:
         zone1_duration, zone2_duration = self._calculate_daily_stats(date=date)
         new_stats = ElectricityAvailability(date=date, zone1_duration=zone1_duration, zone2_duration=zone2_duration)
 
         self.session.add(new_stats)
         self.session.commit()
 
+        return new_stats
+
     def get_daily_stats(self, date: datetime) -> ElectricityAvailability:
-        stats = self.session.query(ElectricityAvailability).filter(ElectricityAvailability.date == date.date()).one()
+        stats = self.session.scalar(select(ElectricityAvailability).where(ElectricityAvailability.date == date.date()))
+        if not stats:
+            stats = self.create_daily_stats(date=date)
         return stats
 
     def _calculate_daily_stats(self, date: datetime) -> tuple[timedelta, timedelta]:
@@ -79,3 +101,16 @@ class StatisticsService:
             finish_date = convert_string_to_date_or_yesterday(text.split()[2])
 
         return start_date, finish_date
+
+    @staticmethod
+    def timedelta_to_human_readable(tmdlt: timedelta) -> str:
+        human_readable = 'весь день.'
+        if not tmdlt.days:
+            tmdlt_in_seconds = tmdlt.seconds
+            hours: int = tmdlt_in_seconds // 3600
+            hours_str = str(hours) + ' год. ' if hours else ''
+            minutes: int = tmdlt_in_seconds % 3600 // 60
+
+            human_readable = f"{hours_str}{minutes:02} хв."
+
+        return human_readable
