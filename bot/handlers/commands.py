@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from loguru import logger
 
 from ping_app.periods_service import PeriodService
 from ping_app.statistics_service import StatisticsService
@@ -60,6 +61,9 @@ async def cmd_read_ruled(message: Message):
 
 @router.message(Command(commands=['stats']))
 async def cmd_stats(message: Message):
+    log = f"stats func | {message.from_user.full_name}: {message.text}"
+    logger.bind(private=True).info(log)
+
     if message.text == '/stats':
         text = statistics.make_weekly_stats_message()
     else:
@@ -85,6 +89,9 @@ async def cmd_donate(message: Message):
     if message.chat.type in ('group', 'supergroup'):
         await message.delete()
     elif message.chat.type == 'private':
+        log = f"donate func | {message.from_user.full_name}: {message.text}"
+        logger.bind(private=True).info(log)
+
         builder = InlineKeyboardBuilder()
         builder.row(InlineKeyboardButton(text="Підтримати", url="https://send.monobank.ua/jar/CXDBhb4LV"))
 
