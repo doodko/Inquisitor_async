@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from aiogram import Router
 from aiogram.filters import Command
@@ -60,17 +60,22 @@ async def cmd_read_ruled(message: Message):
 
 @router.message(Command(commands=['stats']))
 async def cmd_stats(message: Message):
-    start, end = statistics.get_date_period_from_message(message.text)
-    if start > end:
-        start, end = end, start
-    text = f"Статистика за період з <b>{start.date()}</b> по <b>{end.date()}</b>"
-    text += "\nЦя функція ще в розробці, зачекайте"
-    if start < datetime(2022, 12, 22):
-        text = "Ох і давно ж це було, вже й не пригадаю"
-    elif start.date() >= datetime.today().date() or end.date() >= datetime.today().date():
-        text = "🔮 Зараз дістану свою кришталеву кулю і загляну в майбутнє..."
-    elif start == end:
-        text = statistics.make_stats_message(start)
+    if message.text == '/stats':
+        text = statistics.make_weekly_stats_message()
+    else:
+        str_date = message.text[6:].strip()
+        day = statistics.get_date_from_text(text=str_date)
+        if not day:
+            text = "Не можу розпізнати формат дати.\nПотрібно ввести <b>РРРР-ММ-ДД</b>. "
+            text += f"Наприклад, статистика за вчора:\n/stats {datetime.today().date() - timedelta(days=1)}"
+        elif datetime(2022, 12, 22).date() <= day.date() < datetime.today().date():
+            text = statistics.make_daily_stats_message(date=day)
+        elif day.date() >= datetime.today().date():
+            text = "🔮 Зараз дістану свою кришталеву кулю і зазирну в майбутнє..."
+        elif day < datetime(2022, 12, 22):
+            text = "Ох і давно ж це було, вже й не пригадаю"
+        else:
+            text = "Упс, щось пішло не так..."
 
     await message.answer(text=text)
 
