@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, randint
 
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -17,6 +17,7 @@ service_company = regexp_base + r"((телефон)|(номер)).*((ж[єкеэ
 post_index = regexp_base + r"([іи]ндекс)"
 lighting_ukr = r".*((\bсвітло\b.*\bє\b).*|.*(\bє\b.*\bсвітло\b)).*\?"
 lighting_ru = r".*((\bсвет\b.*\bесть\b).*|.*(\bесть\b.*\bсвет\b)).*\?"
+forecast = r".*(\bколи\b|\bкогда\b).*(буде|дадут|включат|явит[ь]?ся).*(світло|свет).*\?"
 
 
 @router.message(F.text.lower().regexp(ohorona))
@@ -62,3 +63,14 @@ async def cmd_current_status(message: Message):
     if message.chat.type == 'private':
         text = await ps.get_current_zones_status()
         await message.answer(text)
+
+
+@router.message(F.text.lower().regexp(forecast))
+async def say_forecast(message: Message):
+    answers = ("Треба ще почекати", "Гадаю, вже зовсім скоро!", "А хіба зараз немає? У мене є!",
+               "Ой, мабуть не скоро...", "Сьогодні можна і не чекати", "Колись точно буде!",
+               "Приблизно через півтори години", "Пішли глянемо у вікно, може у сусідів є?",
+               "То тіки впливова жіночка знає", "Світло всередині нас", "Скоро.. Через 2-3 тижні максимум!",
+               f"Через {randint(1, 5)} год. {randint(15, 59)} хв. Якщо не буде, то треба дзвонити в ДТЕК!")
+
+    await message.reply(text=choice(answers))
