@@ -15,7 +15,9 @@ class NotifierService:
                f"{self._current_status[status]} вже {self._calculate_hours_and_minutes(instance)}"
 
     def get_changed_state(self, instance: Zone | Host) -> str:
-        return f"{self._emodji[not instance.is_online]} <b>{instance.name}</b> {self._new_status[instance.is_online]}. " \
+        now = datetime.now()
+        return f"{self._emodji[not instance.is_online]} <b>{now.hour}:{now.minute - 3} {instance.name}</b> " \
+               f"{self._new_status[instance.is_online]}. " \
                f"Були {self._current_status[instance.is_online]} {self._calculate_hours_and_minutes(instance)}"
 
     @staticmethod
