@@ -84,7 +84,7 @@ async def cmd_stats(message: Message):
 async def cmd_donate(message: Message):
     if message.chat.type in ('group', 'supergroup'):
         await message.delete()
-    if message.chat.type == 'private':
+    elif message.chat.type == 'private':
         builder = InlineKeyboardBuilder()
         builder.row(InlineKeyboardButton(text="Підтримати", url="https://send.monobank.ua/jar/CXDBhb4LV"))
 
