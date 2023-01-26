@@ -3,6 +3,7 @@ from random import choice, randint
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
+from loguru import logger
 
 from ping_app.ping_service import PingService
 
@@ -46,12 +47,17 @@ async def say_current_status(message: Message):
 
         await message.reply(choice(answers))
     elif message.chat.type == 'private':
+        log = f"current status ukr | {message.from_user.full_name}: {message.text}"
+        logger.bind(private=True).info(log)
         text = await ps.get_current_zones_status()
         await message.answer(text=text)
 
 
 @router.message(F.text.lower().regexp(lighting_ru))
 async def say_current_status_rus(message: Message):
+    log = f"current status rus | {message.from_user.full_name}: {message.text}"
+    logger.bind(private=True).info(log)
+
     answers = ("Я знаю, проте не скажу! 🤓", "🤪 расєянську не разумєю",
                "Запитай мене солов'їною 😍", "Зроблю вигляд, що я цього не помітив")
     await message.reply(text=choice(answers))
@@ -67,6 +73,9 @@ async def cmd_current_status(message: Message):
 
 @router.message(F.text.lower().regexp(forecast))
 async def say_forecast(message: Message):
+    log = f"forecast func | {message.from_user.full_name}: {message.text}"
+    logger.bind(private=True).info(log)
+
     answers = ("Треба ще почекати", "Гадаю, вже зовсім скоро!", "А хіба зараз немає? У мене є!",
                "Ой, мабуть не скоро...", "Сьогодні можна і не чекати", "Колись точно буде!",
                "Приблизно через півтори години", "Пішли глянемо у вікно, може у сусідів є?",
