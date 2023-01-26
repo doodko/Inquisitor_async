@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from ping_app.models import Host, Zone
 
 
@@ -15,8 +15,8 @@ class NotifierService:
                f"{self._current_status[status]} вже {self._calculate_hours_and_minutes(instance)}"
 
     def get_changed_state(self, instance: Zone | Host) -> str:
-        now = datetime.now()
-        return f"{self._emodji[not instance.is_online]} <b>{now.hour:02}:{(now.minute - 3):02} {instance.name}</b> " \
+        now = datetime.now() - timedelta(minutes=3)
+        return f"{self._emodji[not instance.is_online]} <b>{now.hour:02}:{now.minute:02} {instance.name}</b> " \
                f"{self._new_status[instance.is_online]}. " \
                f"Були {self._current_status[instance.is_online]} {self._calculate_hours_and_minutes(instance)}"
 
