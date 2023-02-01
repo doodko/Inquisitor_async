@@ -15,7 +15,7 @@ async def text_donate(message: Message):
 
 @router.message()
 async def all_other_private_messages(message: Message):
-    text = f"{message.from_user.id} | {message.from_user.full_name} say: {message.text}"
+    text = f"other messages | {message.from_user.full_name} | {message.text}"
     logger.bind(private=True).info(text)
     text = '''
 Будь ласка, скористайтесь однією з доступних команд:
