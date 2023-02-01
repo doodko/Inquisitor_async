@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
-from random import choice, sample
+from random import sample
 
-from loguru import logger
 from sqlalchemy import select
 
 from ping_app.db import Session
