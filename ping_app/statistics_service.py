@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
-from random import choice, sample
+from random import sample
 
-from loguru import logger
 from sqlalchemy import select
 
 from ping_app.db import Session
@@ -17,9 +16,9 @@ class StatisticsService:
         emoji = self._get_emoji()
         light_on = self._get_light_on_phrase()
 
-        message = f"Спостереження за <b>{stats.date}</b>:\n" \
+        message = f"Спостереження за <b>{stats.date}</b>:\n\n" \
                   f"{emoji[0]} Перші лінії {light_on[0]} <b>{self._get_daily_duration(stats.zone1_duration)}</b>\n" \
-                  f"{emoji[1]} ЛУ/Соборна {light_on[1]} <b>{self._get_daily_duration(stats.zone2_duration)}</b>"
+                  f"{emoji[1]} ЛУ, Соборна {light_on[1]} <b>{self._get_daily_duration(stats.zone2_duration)}</b>"
 
         return message
 
@@ -30,10 +29,11 @@ class StatisticsService:
         emoji = self._get_emoji()
         light_on = self._get_light_on_phrase()
 
-        message = "Cпостереження за останній тиждень:\n\n"
-        message += f"{emoji[0]} Перші лінії {light_on[0]} {self._get_analytics(zone1_duration)}\n\n"
-        message += f"{emoji[1]} Лу/Соборна {light_on[1]} {self._get_analytics(zone2_duration)}\n\n"
-        message += "Цікавить конкретна дата? Введіть команду в такому форматі:\n/stats <i>РРРР-ММ-ДД</i>"
+        message = "Cпостереження за <b>останній тиждень</b>:\n\n"
+        message += f"{emoji[0]} <b>Перші лінії</b> {light_on[0]} {self._get_analytics(zone1_duration)}\n\n"
+        message += f"{emoji[1]} <b>ЛУ, Соборна</b> {light_on[1]} {self._get_analytics(zone2_duration)}\n\n"
+        message += f"Цікавить конкретна дата? Введіть команду в форматі:" \
+                   f"\n<code>/stats {(datetime.today() - timedelta(days=1)).date()}</code>"
 
         return message
 
@@ -147,4 +147,4 @@ class StatisticsService:
         hr_duration = self._duration_to_human_readable(duration_sum)
         persents = duration_sum / timedelta(days=len(stats)) * 100
         avg = self._duration_to_human_readable(duration_sum / len(stats))
-        return f"<b>{hr_duration}</b> ({persents:.2f}%)\n🕙 В середньому по {avg} на добу з електроенергією"
+        return f"<b>{hr_duration}</b> ({persents:.1f}%)\n🕙 В середньому по {avg} на добу з електроенергією"
