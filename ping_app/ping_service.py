@@ -88,15 +88,27 @@ class PingService:
         current_zone_message = notifier.get_changed_state(instance=zone)
         await host_crud_service.invert_online_status(instance=zone)
         await period_service.start_stop_period(zone=zone)
-        await self.notify_main_group(zone=zone, message=current_zone_message)
+        group_msg = current_zone_message + self._finish_message(zone.is_online)
+        await self.notify_main_group(zone=zone, message=group_msg)
         await self.notify_subscribers(zone=zone, message=current_zone_message)
 
     @staticmethod
     async def notify_main_group(zone: Zone, message: str):
-        destination = '-1001092707720' # config.superuser_id
+        destination = '-1001092707720'  # config.superuser_id
         emodji = ('⚡', '💡')
         await bot.send_message(chat_id=destination, text=f"{emodji[zone.is_online]}")
         await bot.send_message(chat_id=destination, text=message)
+
+    @staticmethod
+    def _finish_message(is_online: bool) -> str:
+        light_on = choice(['Стало трохи краще', 'Ну нарешті!', 'Привіт, ми чекали', 'Ура!', 'Електрохарчування подано',
+                           'Більше не змушуй мене так довго чекати!', 'Майже вчасно', 'І на тому спасибі'])
+        light_off = choice(['Йбн рсня!', 'А шо так мало?', 'Наша русофобія недостатня.', 'Свєта, вєртайся.',
+                            'Було добре, модна добавки', 'Ну ще 5 хвилин...', 'Стало гірше :(', 'Я хочу ще',
+                            'Нема сечі терпіти ці пекельні борошна', 'І це й все?.. а розмов то було'])
+
+        msg_finish = (light_off, light_on)
+        return '\n\n' + msg_finish[is_online]
 
     @staticmethod
     async def notify_subscribers(zone: Zone, message: str):
@@ -117,7 +129,7 @@ class PingService:
     async def get_current_zones_status() -> str:
         zones = await host_crud_service.get_all_zones()
         zone_statuses = [notifier.get_current_state(zone) for zone in zones]
-        return '\n'.join(zone_statuses)
+        return '\n\n'.join(zone_statuses)
 
     @staticmethod
     async def change_ping_periodicity(seconds: str) -> str:
