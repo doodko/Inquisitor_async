@@ -74,17 +74,21 @@ class StatisticsService:
 
         return zone1_duration, zone2_duration
 
-    def _get_periods_by_date(self, search_date: datetime):
+    def _get_periods_by_date(self, search_date: datetime) -> list[Period]:
         periods = self.session.query(Period).\
             filter(Period.start < (search_date + timedelta(days=1)), Period.end > search_date).all()
 
+        last_periods = self._get_unfinished_periods()
+        periods.extend(last_periods)
+
         return periods
 
-    def get_periods_by_interval(self, start_date: datetime, finish_date: datetime):
-        query = select(Period).where(Period.start.between(start_date, finish_date + timedelta(days=1)) |
-                                     Period.end.between(start_date, finish_date + timedelta(days=1)))\
-            .order_by(Period.start)
-        periods = self.session.scalars(query).all()
+    def _get_unfinished_periods(self) -> list[Period]:
+        periods = []
+        for i in range(1, 3):
+            last_period = self.session.query(Period).filter(Period.zone == i).order_by(Period.start.desc()).limit(1).one()
+            if not (last_period.end - last_period.start).seconds:
+                periods.append(last_period)
 
         return periods
 
@@ -102,7 +106,7 @@ class StatisticsService:
         return duration
 
     @staticmethod
-    def get_date_from_text(text: str) -> datetime | None:
+    def _get_date_from_text(text: str) -> datetime | None:
         try:
             date = datetime.strptime(text, "%Y-%m-%d")
         except ValueError:
@@ -147,4 +151,4 @@ class StatisticsService:
         hr_duration = self._duration_to_human_readable(duration_sum)
         persents = duration_sum / timedelta(days=len(stats)) * 100
         avg = self._duration_to_human_readable(duration_sum / len(stats))
-        return f"<b>{hr_duration}</b> ({persents:.1f}%)\n🕙 В середньому по {avg} на добу з електроенергією"
+        return f"<b>{hr_duration}</b> ({persents:.1f}%)\n🕙 В середньому по <b>{avg}</b> на добу з електроенергією"

@@ -86,7 +86,7 @@ async def cmd_stats(message: Message):
             text = statistics.make_weekly_stats_message()
         else:
             str_date = message.text[6:].strip()
-            day = statistics.get_date_from_text(text=str_date)
+            day = statistics._get_date_from_text(text=str_date)
             if not day:
                 text = "Не можу розпізнати формат дати.\nПотрібно ввести <b>РРРР-ММ-ДД</b>. "
                 text += f"Наприклад, статистика за вчора:\n/stats {datetime.today().date() - timedelta(days=1)}"
