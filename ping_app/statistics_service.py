@@ -75,13 +75,13 @@ class StatisticsService:
         return zone1_duration, zone2_duration
 
     def _get_periods_by_date(self, search_date: datetime) -> list[Period]:
-        periods = self.session.query(Period).\
+        daily_periods = self.session.query(Period).\
             filter(Period.start < (search_date + timedelta(days=1)), Period.end > search_date).all()
 
         last_periods = self._get_unfinished_periods()
-        periods.extend(last_periods)
+        daily_periods += [period for period in last_periods if period not in daily_periods]
 
-        return periods
+        return daily_periods
 
     def _get_unfinished_periods(self) -> list[Period]:
         periods = []
