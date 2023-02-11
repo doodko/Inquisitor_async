@@ -52,7 +52,7 @@ async def cmd_read_ruled(message: Message):
             user = message.reply_to_message.from_user
             await message.reply_to_message.delete()
 
-            rules_url = 'https://telegra.ph/Pravila-grupi-Petr%D1%96vskij-kvartal-10-20'
+            rules_url = 'https://telegra.ph/Pravila-grupi-Petr%D1%96vskij-Kvartal-02-11'
             answer = f"[{user.full_name}](tg://user?id={user.id}), ознайомтесь з " \
                      f"[правилами групи]({rules_url}), будь ласка\."
 
