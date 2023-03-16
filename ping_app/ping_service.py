@@ -133,14 +133,3 @@ class PingService:
         zones = await host_crud_service.get_all_zones()
         zone_statuses = [notifier.get_current_state(zone) for zone in zones]
         return '\n\n'.join(zone_statuses)
-
-    @staticmethod
-    async def change_ping_periodicity(seconds: str) -> str:
-        message = f"invalid value"
-        if seconds.isnumeric():
-            if int(seconds) != config.ping_period:
-                config.ping_period = int(seconds)
-                message = f"ping period was changed to {seconds} seconds"
-                logger.bind(event=True).info(message)
-
-        return message
