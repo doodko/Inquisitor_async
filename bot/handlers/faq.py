@@ -37,15 +37,7 @@ async def say_index(message: Message):
 
 @router.message(F.text.lower().regexp(lighting_ukr))
 async def say_current_status(message: Message):
-    if message.chat.type in ('group', 'supergroup'):
-        answers = ('Запитай те саме у мене в особистих повідомленнях і я підкажу ;)',
-                   "Я можу повідомляти коли з'являється чи зникає світло у вашій лінії",
-                   "Почекаємо поки добрі люди підкажуть",
-                   "Може є, а може ні. 50/50",
-                   "Підписка на сповіщення безкоштовна. Сусідські нерви - безцінні!")
-
-        await message.reply(choice(answers))
-    elif message.chat.type == 'private':
+    if message.chat.type == 'private':
         log = f"current status ukr | {message.from_user.full_name}: {message.text}"
         logger.bind(private=True).info(log)
         text = await ps.get_current_zones_status()
