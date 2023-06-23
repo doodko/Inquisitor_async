@@ -1,12 +1,13 @@
 from random import choice, randint
 
 from aiogram import Router, F
+from aiogram.exceptions import TelegramForbiddenError
 from aiogram.filters import Command
 from aiogram.types import Message
 from loguru import logger
 
 from ping_app.ping_service import PingService
-
+from settings_reader import config
 
 router = Router()
 ps = PingService()
@@ -18,6 +19,7 @@ service_company = regexp_base + r"((телефон)|(номер)).*((ж[єкеэ
 post_index = regexp_base + r"([іи]ндекс)"
 lighting_ukr = r".*((\bсвітло\b.*\bє\b).*|.*(\bє\b.*\bсвітло\b)).*\?"
 forecast = r".*(\bколи\b|\bкогда\b).*(буде|дадут|включат|явит[ь]?ся).*(світло|свет).*\?"
+kolo = r".*(коло|[иі]нтернет|провайдер).*"
 
 
 @router.message(F.text.lower().regexp(ohorona))
@@ -35,17 +37,18 @@ async def say_index(message: Message):
     await message.reply("індекс: 08148")
 
 
+@router.message(F.text.lower().regexp(kolo))
+async def ping_kolo(message: Message):
+    try:
+        await message.forward(chat_id=config.superuser_id)
+        await message.forward(chat_id=1554784573)
+    except TelegramForbiddenError:
+        pass
+
+
 @router.message(F.text.lower().regexp(lighting_ukr))
 async def say_current_status(message: Message):
-    if message.chat.type in ('group', 'supergroup'):
-        answers = ('Запитай те саме у мене в особистих повідомленнях і я підкажу ;)',
-                   "Я можу повідомляти коли з'являється чи зникає світло у вашій лінії",
-                   "Почекаємо поки добрі люди підкажуть",
-                   "Може є, а може ні. 50/50",
-                   "Підписка на сповіщення безкоштовна. Сусідські нерви - безцінні!")
-
-        await message.reply(choice(answers))
-    elif message.chat.type == 'private':
+    if message.chat.type == 'private':
         log = f"current status ukr | {message.from_user.full_name}: {message.text}"
         logger.bind(private=True).info(log)
         text = await ps.get_current_zones_status()
