@@ -20,6 +20,8 @@ post_index = regexp_base + r"([іи]ндекс)"
 lighting_ukr = r".*((\bсвітло\b.*\bє\b).*|.*(\bє\b.*\bсвітло\b)).*\?"
 forecast = r".*(\bколи\b|\bкогда\b).*(буде|дадут|включат|явит[ь]?ся).*(світло|свет).*\?"
 kolo = r".*(коло|[иі]нтернет|провайдер).*"
+kivi = r".*\b(кав[ауио]|кофе|ф[иі]льтр|[эе]спре[с]+о|капуч[іи]но|латте|п[иі][ц]+а|сендв[иі]ч|бургер|сніданок|завтрак|" \
+       r"тістечка|круасан|смаколик|торт|макар[оу]н|кафе|ресторан|кав\'ярн|п[иі][ц]+ер[иі])"
 
 
 @router.message(F.text.lower().regexp(ohorona))
@@ -40,8 +42,16 @@ async def say_index(message: Message):
 @router.message(F.text.lower().regexp(kolo))
 async def ping_kolo(message: Message):
     try:
-        await message.forward(chat_id=config.superuser_id)
+        # await message.forward(chat_id=config.superuser_id)
         await message.forward(chat_id=1554784573)
+    except TelegramForbiddenError:
+        pass
+
+
+@router.message(F.text.lower().regexp(kivi))
+async def ping_kivi(message: Message):
+    try:
+        await message.forward(chat_id=798798016)
     except TelegramForbiddenError:
         pass
 
