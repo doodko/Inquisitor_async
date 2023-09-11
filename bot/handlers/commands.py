@@ -74,29 +74,29 @@ async def cmd_donate(message: Message):
                              reply_markup=builder.as_markup())
 
 
-@router.message(Command(commands=['stats']))
-async def cmd_stats(message: Message):
-    if message.chat.type in ('group', 'supergroup'):
-        await message.delete()
-    elif message.chat.type == 'private':
-        log = f"stats func | {message.from_user.full_name}: {message.text}"
-        logger.bind(private=True).info(log)
-
-        if message.text == '/stats':
-            text = statistics.make_weekly_stats_message()
-        else:
-            str_date = message.text[6:].strip()
-            day = statistics._get_date_from_text(text=str_date)
-            if not day:
-                text = "Не можу розпізнати формат дати.\nПотрібно ввести <b>РРРР-ММ-ДД</b>. "
-                text += f"Наприклад, статистика за вчора:\n/stats {datetime.today().date() - timedelta(days=1)}"
-            elif datetime(2022, 12, 22).date() <= day.date() < datetime.today().date():
-                text = statistics.make_daily_stats_message(date=day)
-            elif day.date() >= datetime.today().date():
-                text = "🔮 Зараз дістану свою кришталеву кулю і зазирну в майбутнє..."
-            elif day < datetime(2022, 12, 22):
-                text = "Ох і давно ж це було, вже й не пригадаю"
-            else:
-                text = "Упс, щось пішло не так..."
-
-        await message.answer(text=text)
+# @router.message(Command(commands=['stats']))
+# async def cmd_stats(message: Message):
+#     if message.chat.type in ('group', 'supergroup'):
+#         await message.delete()
+#     elif message.chat.type == 'private':
+#         log = f"stats func | {message.from_user.full_name}: {message.text}"
+#         logger.bind(private=True).info(log)
+#
+#         if message.text == '/stats':
+#             text = statistics.make_weekly_stats_message()
+#         else:
+#             str_date = message.text[6:].strip()
+#             day = statistics._get_date_from_text(text=str_date)
+#             if not day:
+#                 text = "Не можу розпізнати формат дати.\nПотрібно ввести <b>РРРР-ММ-ДД</b>. "
+#                 text += f"Наприклад, статистика за вчора:\n/stats {datetime.today().date() - timedelta(days=1)}"
+#             elif datetime(2022, 12, 22).date() <= day.date() < datetime.today().date():
+#                 text = statistics.make_daily_stats_message(date=day)
+#             elif day.date() >= datetime.today().date():
+#                 text = "🔮 Зараз дістану свою кришталеву кулю і зазирну в майбутнє..."
+#             elif day < datetime(2022, 12, 22):
+#                 text = "Ох і давно ж це було, вже й не пригадаю"
+#             else:
+#                 text = "Упс, щось пішло не так..."
+#
+#         await message.answer(text=text)

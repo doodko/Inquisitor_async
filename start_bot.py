@@ -1,13 +1,11 @@
 import asyncio
 import sys
 
-from loguru import logger
 from aiogram import Bot, Dispatcher
+from loguru import logger
 
-
-from bot.handlers import faq, commands, ping, subscription, private_messages
+from bot.handlers import faq, commands, private_messages
 from settings_reader import config
-
 
 bot = Bot(token=config.token.get_secret_value(), parse_mode="HTML")
 
@@ -28,8 +26,6 @@ async def main():
 
     dp.include_router(commands.router)
     dp.include_router(faq.router)
-    dp.include_router(ping.router)
-    dp.include_router(subscription.router)
     dp.include_router(private_messages.router)
 
     logger.bind(event=True).info('Bot started')

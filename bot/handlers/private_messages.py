@@ -18,12 +18,6 @@ async def all_other_private_messages(message: Message):
     text = f"other messages | {message.from_user.full_name} | {message.text}"
     logger.bind(private=True).info(text)
     text = '''
-Будь ласка, скористайтесь однією з доступних команд:
-/current_status показує поточну ситуацію з електроенергією
-/subscribe викликає меню підписки на сповіщення
-/stats покаже коротку статистику
-/donate для підтримки розробки
-
 На даний момент бот знаходиться в стадії бета тестування. Якщо помітили помилку - напишіть @doodko
 '''
 
