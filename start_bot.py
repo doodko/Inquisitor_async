@@ -2,12 +2,14 @@ import asyncio
 import sys
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from loguru import logger
 
 from bot.handlers import faq, commands, private_messages
 from settings_reader import config
 
-bot = Bot(token=config.token.get_secret_value(), parse_mode="HTML")
+bot = Bot(token=config.token.get_secret_value(), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 logger.remove()
 logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{message}</level>")
