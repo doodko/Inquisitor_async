@@ -4,7 +4,6 @@ from loguru import logger
 
 from bot.handlers.commands import cmd_donate
 from bot.services.search_service import search_service
-from bot.types.search_dto import SearchResponse
 
 router = Router()
 router.message.filter(F.chat.type =='private')
@@ -21,9 +20,9 @@ async def all_other_private_messages(message: Message):
     logger.bind(private=True).info(log_text)
 
     if len(message.text) < 3:
-        answer_text = "Your search query should contain at least 3 symbols."
+        answer_text = "Хто розбере шо тут шукати, напишіть трохи більше букв"
     elif len(message.text.split()) > 3:
-        answer_text = "Your search query should contain no more than 3 words."
+        answer_text = "Давайте трохи коротше, спробуйте до трьох слів"
     else:
         search_response = search_service.find(message.text)
 
