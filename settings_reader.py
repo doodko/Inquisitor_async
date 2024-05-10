@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     token: SecretStr
     superuser_id: int
     admins: set
+    search_api: str
 
     class Config:
         env_file = ".env"
