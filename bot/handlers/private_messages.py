@@ -3,6 +3,7 @@ from aiogram.types import Message
 from loguru import logger
 
 from bot.handlers.commands import cmd_donate
+from bot.services.private_message_service import private_message_service
 from bot.services.search_service import search_service
 
 router = Router()
@@ -16,24 +17,6 @@ async def text_donate(message: Message):
 
 @router.message()
 async def all_other_private_messages(message: Message):
-    log_text = f"other messages | {message.from_user.full_name} | {message.text}"
-    logger.bind(private=True).info(log_text)
-
-    if len(message.text) < 3:
-        answer_text = "Хто розбере шо тут шукати, напишіть трохи більше букв"
-    elif len(message.text.split()) > 3:
-        answer_text = "Давайте трохи коротше, спробуйте до трьох слів"
-    else:
-        search_response = search_service.find(message.text)
-
-        if not search_response:
-            answer_text = "Сталась якась халепа, спробуйте пізніше :("
-
-        elif search_response.count == 0:
-            answer_text = "Мені не вдалось нічого знайти :("
-
-        else:
-            answer_text = f"Знайдено {search_response.count} результатів"
-
-    await message.answer(text=answer_text)
+    answer = await private_message_service.process_private_message(message=message)
+    await message.answer(text=answer)
 
