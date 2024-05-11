@@ -1,12 +1,17 @@
+from typing import List
+
 from aiogram import types
 from loguru import logger
 
-from bot.enums.message_answers import MessageAnswers
-from bot.services.search_service import search_service
+from bot.enums.message_answers import AnswerTypes, MessageAnswers
+from bot.services.search_service import api_client
+from bot.types.search_dto import Establishment, SearchResponse
 
 
 class PrivateMessageService:
-    async def process_private_message(self, message: types.Message):
+    async def process_private_message(
+        self, message: types.Message
+    ) -> str | List[Establishment]:
         await self.log_message(message=message)
         query = message.text
 
@@ -23,18 +28,18 @@ class PrivateMessageService:
     @staticmethod
     async def validate_message(query: str) -> str | None:
         if len(query) < 3:
-            return MessageAnswers.TOO_SHORT_TEXT
+            return MessageAnswers.answer(AnswerTypes.TOO_SHORT_TEXT)
         elif len(query.split()) > 3:
-            return MessageAnswers.TOO_MANY_WORDS
+            return MessageAnswers.answer(AnswerTypes.TOO_MANY_WORDS)
 
-    async def perform_search(self, query: str) -> str:
-        search_response = search_service.find(query=query)
+    async def perform_search(self, query: str) -> str | SearchResponse:
+        search_response = api_client.find(query=query)
         if not search_response:
-            answer = MessageAnswers.ERROR_MESSAGE
+            answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
         elif search_response.count == 0:
-            answer = MessageAnswers.NO_RESULTS_FOUND
+            answer = MessageAnswers.answer(AnswerTypes.NO_RESULTS_FOUND)
         else:
-            answer = f"Знайдено {search_response.count} результатів"
+            answer = search_response
 
         return answer
 

@@ -1,10 +1,12 @@
 import requests
 
-from bot.types.search_dto import SearchResponse, Establishment
+from bot.enums.message_answers import AnswerTypes, MessageAnswers
+from bot.services.establishment_reply_builder import EstablishmentBuilder
+from bot.types.search_dto import Establishment, SearchResponse
 from settings_reader import config
 
 
-class SearchService:
+class ApiClient:
     def __init__(self):
         self.api_url = config.search_api
 
@@ -27,11 +29,18 @@ class SearchService:
         search_response = SearchResponse.model_validate(response_data)
         return search_response
 
-    def retrieve(self, slug: str) -> Establishment:
-        endpoint = self.api_url + slug
+    def _retrieve(self, slug: str) -> Establishment:
+        endpoint = self.api_url + slug + "/"
         response_data = self._request(endpoint)
         establishment = Establishment.model_validate(response_data)
         return establishment
 
+    def get_establishment_template(self, slug: str) -> str:
+        establishment = self._retrieve(slug)
+        if not establishment:
+            return MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
 
-search_service = SearchService()
+        return EstablishmentBuilder(establishment).build_establishment_card()
+
+
+api_client = ApiClient()
