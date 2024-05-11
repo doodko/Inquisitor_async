@@ -8,6 +8,7 @@ class SocialContact(BaseModel):
     name: str
     value: HttpUrl
 
+
 class Establishment(BaseModel):
     id: int
     name: str
@@ -25,6 +26,7 @@ class Establishment(BaseModel):
     logo: Optional[HttpUrl]
     created_at: datetime
     updated_at: datetime
+
 
 class SearchResponse(BaseModel):
     count: int

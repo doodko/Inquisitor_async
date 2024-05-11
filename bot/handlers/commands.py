@@ -46,7 +46,7 @@ async def cmd_read_ruled(message: Message):
 
             rules_url = 'https://telegra.ph/Pravila-grupi-Petr%D1%96vskij-Kvartal-02-11'
             answer = f"[{user.full_name}](tg://user?id={user.id}), ознайомтесь з " \
-                     f"[правилами групи]({rules_url}), будь ласка\."
+                     f"[правилами групи]({rules_url}), будь ласка."
 
             await message.answer(text=answer, parse_mode='MarkdownV2')
 

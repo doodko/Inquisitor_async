@@ -6,19 +6,22 @@ from settings_reader import config
 
 class SearchService:
     def __init__(self):
-        self.api = config.search_api
+        self.api_url = config.search_api
+
+    def _search(self, query: str):
+        response = requests.get(self.api_url, params={"search": query, "page_size": 20})
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+            return None
 
     def find(self, query: str) -> SearchResponse | None:
-        url = f"{self.api}?search={query}&page_size=20"
         try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                response_data = response.json()
-                search_response = SearchResponse.model_validate(response_data)
-                return search_response
-            else:
-                print(f"Request failed with status code: {response.status_code}")
-                return None
+            response_data = self._search(query)
+            search_response = SearchResponse.model_validate(response_data)
+            return search_response
+
         except Exception as e:
             print(f"Error occurred: {e}")
             return None
