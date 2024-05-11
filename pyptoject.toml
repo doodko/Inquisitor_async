@@ -1,0 +1,25 @@
+[tool.ruff]
+select = ["B", "C", "E", "F", "W"]
+ignore = ["E501", "E712", "B904", "C408", "F841"]
+unfixable = ["B"]
+
+exclude = [
+    'venv',  '.git',
+    '.idea',  'pycache',
+    'migrations/',  'scripts/'
+]
+
+line-length = 120
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["E402", "F403", "F405"]
+
+[tool.ruff.mccabe]
+max-complexity = 25
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"

@@ -1,20 +1,12 @@
-from datetime import datetime, timedelta
-
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger
 
-from ping_app.periods_service import PeriodService
-from ping_app.statistics_service import StatisticsService
 from settings_reader import config
 
-
 router = Router()
-
-ps = PeriodService()
-statistics = StatisticsService()
 
 
 @router.message(Command(commands=['health_check']))
@@ -54,7 +46,7 @@ async def cmd_read_ruled(message: Message):
 
             rules_url = 'https://telegra.ph/Pravila-grupi-Petr%D1%96vskij-Kvartal-02-11'
             answer = f"[{user.full_name}](tg://user?id={user.id}), ознайомтесь з " \
-                     f"[правилами групи]({rules_url}), будь ласка\."
+                     f"[правилами групи]({rules_url}), будь ласка."
 
             await message.answer(text=answer, parse_mode='MarkdownV2')
 
@@ -73,30 +65,3 @@ async def cmd_donate(message: Message):
         await message.answer('Подобається сервіс? Ви можете подякувати та підтримати розробника монетою 💰',
                              reply_markup=builder.as_markup())
 
-
-# @router.message(Command(commands=['stats']))
-# async def cmd_stats(message: Message):
-#     if message.chat.type in ('group', 'supergroup'):
-#         await message.delete()
-#     elif message.chat.type == 'private':
-#         log = f"stats func | {message.from_user.full_name}: {message.text}"
-#         logger.bind(private=True).info(log)
-#
-#         if message.text == '/stats':
-#             text = statistics.make_weekly_stats_message()
-#         else:
-#             str_date = message.text[6:].strip()
-#             day = statistics._get_date_from_text(text=str_date)
-#             if not day:
-#                 text = "Не можу розпізнати формат дати.\nПотрібно ввести <b>РРРР-ММ-ДД</b>. "
-#                 text += f"Наприклад, статистика за вчора:\n/stats {datetime.today().date() - timedelta(days=1)}"
-#             elif datetime(2022, 12, 22).date() <= day.date() < datetime.today().date():
-#                 text = statistics.make_daily_stats_message(date=day)
-#             elif day.date() >= datetime.today().date():
-#                 text = "🔮 Зараз дістану свою кришталеву кулю і зазирну в майбутнє..."
-#             elif day < datetime(2022, 12, 22):
-#                 text = "Ох і давно ж це було, вже й не пригадаю"
-#             else:
-#                 text = "Упс, щось пішло не так..."
-#
-#         await message.answer(text=text)
