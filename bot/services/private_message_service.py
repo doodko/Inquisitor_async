@@ -4,7 +4,7 @@ from aiogram import types
 from loguru import logger
 
 from bot.enums.message_answers import AnswerTypes, MessageAnswers
-from bot.services.search_service import api_client
+from bot.services.api_client import api_client
 from bot.types.search_dto import Establishment, SearchResponse
 
 

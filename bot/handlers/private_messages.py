@@ -7,8 +7,9 @@ from bot.keyboards.establishment_keyboard import (
     EstablishmentCallback,
     establishments_keyboard,
 )
+from bot.services.api_client import api_client
+from bot.services.establishment_reply_builder import EstablishmentBuilder
 from bot.services.private_message_service import private_message_service
-from bot.services.search_service import api_client
 from bot.types.search_dto import SearchResponse
 
 router = Router()
@@ -24,7 +25,12 @@ async def text_donate(message: Message):
 async def process_establishment(
     query: CallbackQuery, callback_data: EstablishmentCallback
 ):
-    answer = api_client.get_establishment_template(slug=callback_data.slug)
+
+    establishment = api_client.retrieve(slug=callback_data.slug)
+    if not establishment:
+        answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
+    else:
+        answer = EstablishmentBuilder(establishment).build_establishment_card()
 
     await query.message.answer(text=answer)
     await query.answer()
