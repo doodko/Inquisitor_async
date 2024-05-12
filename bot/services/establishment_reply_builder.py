@@ -20,11 +20,11 @@ class EstablishmentBuilder:
     def get_main_icon(self) -> str:
         match self.establishment.category:
             case "store":
-                return "🏪"
+                return "🛒"
             case "cafe":
                 return "🍽️"
             case "service":
-                return "🏢"
+                return "🔤"
             case "finance":
                 return "💰"
             case "medicine":
@@ -33,7 +33,7 @@ class EstablishmentBuilder:
                 return "👩‍🔧"
 
     def get_name_string(self) -> str:
-        return f"{self.get_main_icon()} <b>{self.establishment.name}</b>\n"
+        return f"{self.get_main_icon()} <b>{self.establishment.name}</b>"
 
     def get_description(self) -> str:
         return self.optional_string(name=self.establishment.description, icon="📃")
@@ -46,34 +46,11 @@ class EstablishmentBuilder:
     def get_work_hours(self):
         if not self.establishment.workhrs:
             return ""
-        clock_icons = [
-            "🕐",
-            "🕑",
-            "🕒",
-            "🕓",
-            "🕔",
-            "🕕",
-            "🕖",
-            "🕗",
-            "🕘",
-            "🕙",
-            "🕚",
-            "🕛",
-            "🕜",
-            "🕝",
-            "🕞",
-            "🕟",
-            "🕡",
-            "🕢",
-            "🕣",
-            "🕤",
-            "🕥",
-            "🕦",
-            "🕧",
-        ]
+        clock_icons = "🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧"
+
         rows = self.establishment.workhrs.split("|")
         work_hours = [f"{choice(clock_icons)} {row}" for row in rows]
-        return "\n".join(work_hours)
+        return "\n" + "\n".join(work_hours)
 
     def get_phone_numbers(self) -> str:
         if not self.establishment.phone_numbers:
@@ -94,7 +71,7 @@ class EstablishmentBuilder:
 
     @staticmethod
     def optional_string(name: str, icon: str = "") -> str:
-        return f"{icon} {name}\n" if name else ""
+        return f"\n{icon} {name}" if name else ""
 
     @staticmethod
     def contact_format(contact: SocialContact):

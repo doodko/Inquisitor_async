@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     superuser_id: int
     admins: set
     api_url: str
+    rules_url: str
+    jar_url: str
 
     class Config:
         env_file = ".env"
