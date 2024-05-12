@@ -3,11 +3,11 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_name: str = 'Inquisitor'
+    app_name: str = "Inquisitor"
     token: SecretStr
     superuser_id: int
     admins: set
-    search_api: str
+    api_url: str
 
     class Config:
         env_file = ".env"
