@@ -14,22 +14,23 @@ async def cmd_health_check(message: Message):
     await message.answer(text="I'm okay!")
 
 
-@router.message(Command(commands=["ask_volodya"]))
-async def cmd_ask_volodya(message: Message):
+@router.message(Command(commands=["ask_me"]))
+async def cmd_ask_me(message: Message):
     await message.delete()
 
     if message.from_user.id in config.admins:
         if message.reply_to_message:
             query = "одним словом"
-            command = message.text.split()[0]
+            splited_command = message.text.split()
+            command = splited_command[0]
 
-            if len(message.text.split()) > 1:
+            if len(splited_command) > 1:
                 query = message.text.replace(command, "").strip()
 
             answer = f"""
-Спробуйте запитати у Володі:
-1. Відкриваємо чат з ботом @pkvartal_bot
-2. Пишемо йому запит <b>{query}</b>
+Спробуйте запитати у мене в приватних повідомленнях:
+1. Відкриваємо чат @pk_moderatorbot
+2. Пишемо запит <b>{query}</b>
 3. Отримуємо релевантні результати. Профіт!"""
 
             await message.reply_to_message.reply(text=answer)
@@ -44,31 +45,33 @@ async def cmd_read_ruled(message: Message):
             user = message.reply_to_message.from_user
             await message.reply_to_message.delete()
 
-            rules_url = "https://telegra.ph/Pravila-grupi-Petr%D1%96vskij-Kvartal-02-11"
-            answer = (
-                f"[{user.full_name}](tg://user?id={user.id}), ознайомтесь з "
-                f"[правилами групи]({rules_url}), будь ласка."
-            )
+            user_link = f"<a href='tg://user?id={user.id}'>{user.full_name}</a>"
+            rules_link = f"<a href='{config.rules_url}'>правилами групи</a>"
+            answer = f"{user_link}, ознайомтесь з {rules_link}, будь ласка."
 
-            await message.answer(text=answer, parse_mode="MarkdownV2")
+            await message.answer(text=answer)
 
 
 @router.message(Command(commands=["donate"]))
 async def cmd_donate(message: Message):
-    if message.chat.type in ("group", "supergroup"):
-        await message.delete()
-    elif message.chat.type == "private":
+    if message.chat.type == "private":
         log = f"donate func | {message.from_user.full_name}: {message.text}"
         logger.bind(private=True).info(log)
 
         builder = InlineKeyboardBuilder()
-        builder.row(
-            InlineKeyboardButton(
-                text="Підтримати", url="https://send.monobank.ua/jar/CXDBhb4LV"
-            )
-        )
+        builder.row(InlineKeyboardButton(text="Підтримати", url=config.jar_url))
 
-        await message.answer(
-            "Подобається сервіс? Ви можете подякувати та підтримати розробника монетою 💰",
-            reply_markup=builder.as_markup(),
-        )
+        answer = "Подобається сервіс? Ви можете подякувати та підтримати розробника монетою 💰"
+        await message.answer(text=answer, parse_mode="MarkdownV2")
+
+    else:
+        await message.delete()
+
+
+@router.message(Command(commands=["start", "help"]))
+async def cmd_help(message: Message):
+    if message.chat.type == "private":
+        answer = f"Коротко запитайте що вас цікавить і я спробую знайти варіанти серед закладів ПК. Я вмію шукати по назві чи ключовим словам.\n\nЗнайшли помилку? <a href='tg://user?id={config.superuser_id}'>Пишіть.</a>"
+        await message.answer(text=answer)
+    else:
+        await message.delete()
