@@ -46,9 +46,9 @@ async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
     api_client.vote(
         establishment_id=callback_data.establishment_id, vote=callback_data.vote
     )
-    text = f"Ви проголосували {callback_data.vote} за {callback_data.establishment_id}, записав!"
-
-    await query.message.answer(text=text)
+    # text = f"Ви проголосували {callback_data.vote} за {callback_data.establishment_id}, записав!"
+    # await query.message.answer(text=text)
+    # ToDo: add voting functionality
     await query.answer(text="Ваш голос враховано :)")
 
 
