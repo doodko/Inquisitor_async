@@ -4,6 +4,7 @@ from aiogram.types import InlineKeyboardButton, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger
 
+from bot.services.api_client import ApiClient
 from bot.settings_reader import config
 
 router = Router()
@@ -73,5 +74,8 @@ async def cmd_help(message: Message):
     if message.chat.type == "private":
         answer = f"Коротко запитайте що вас цікавить і я спробую знайти варіанти серед закладів ПК. Я вмію шукати по назві чи ключовим словам.\n\nЗнайшли помилку чи хочете запропонувати зміни? <a href='tg://user?id={config.superuser_id}'>Пишіть.</a>"
         await message.answer(text=answer)
+        api_client = ApiClient(user=message.from_user)
+        api_client.hello_its_me()
+
     else:
         await message.delete()
