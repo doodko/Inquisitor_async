@@ -22,6 +22,11 @@ class ApiClient:
 
             if response.status_code == 200:
                 return response.json()
+            elif response.status_code == 403:
+                self.hello_its_me()
+                requests.post(
+                    endpoint, json=data, headers=headers
+                )  # resend post request
             else:
                 print(f"Request failed with status code: {response.status_code}")
         except Exception as e:
@@ -42,14 +47,14 @@ class ApiClient:
         establishment = Establishment.model_validate(response_data)
         return establishment
 
-    def hello_its_me(self, user: User):
+    def hello_its_me(self):
         endpoint = self.api_url
         data = {
-            "tg_id": user.id,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "username": user.username,
-            "is_premium": user.is_premium,
+            "tg_id": self.user.id,
+            "first_name": self.user.first_name,
+            "last_name": self.user.last_name,
+            "username": self.user.username,
+            "is_premium": self.user.is_premium,
         }
         response_data = self._request(endpoint=endpoint, method="POST", data=data)
         print(response_data)
