@@ -11,7 +11,7 @@ class ApiClient:
         self.user = user
 
     def _request(self, endpoint: str, method: str = "GET", params=None, data=None):
-        headers = {"telegram_user_id": str(self.user.id)}
+        headers = {"x-user-id": str(self.user.id)}
         try:
             if method == "GET":
                 response = requests.get(endpoint, params=params, headers=headers)
@@ -23,10 +23,12 @@ class ApiClient:
             if response.status_code == 200:
                 return response.json()
             elif response.status_code == 403:
+                print("Received 403 Forbidden error. Resending POST request...")
                 self.hello_its_me()
-                requests.post(
-                    endpoint, json=data, headers=headers
-                )  # resend post request
+                retry_response = requests.post(endpoint, json=data, headers=headers)
+                if retry_response.status_code == 200:
+                    return retry_response.json()
+
             else:
                 print(f"Request failed with status code: {response.status_code}")
         except Exception as e:
@@ -34,7 +36,7 @@ class ApiClient:
             return None
 
     def find(self, query: str) -> SearchResponse:
-        endpoint = self.api_url
+        endpoint = f"{self.api_url}/infrastructure/"
         params = {"search": query, "page_size": 20}
 
         response_data = self._request(endpoint=endpoint, params=params)
@@ -42,22 +44,22 @@ class ApiClient:
         return search_response
 
     def retrieve(self, slug: str) -> Establishment:
-        endpoint = self.api_url + slug + "/"
+        endpoint = f"{self.api_url}/infrastructure/{slug}/"
         response_data = self._request(endpoint=endpoint)
         establishment = Establishment.model_validate(response_data)
         return establishment
 
     def hello_its_me(self):
-        endpoint = self.api_url
+        endpoint = f"{self.api_url}/users/tg-register/"
         data = {
             "tg_id": self.user.id,
             "first_name": self.user.first_name,
             "last_name": self.user.last_name,
             "username": self.user.username,
-            "is_premium": self.user.is_premium,
+            "is_premium": self.user.is_premium or False,
         }
         response_data = self._request(endpoint=endpoint, method="POST", data=data)
-        print(response_data)
+        return response_data
 
     def vote(self, establishment_id: int, vote: int):
         print(f"Voting for {establishment_id}, user {self.user.id} rated it {vote}")
