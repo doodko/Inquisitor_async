@@ -1,15 +1,18 @@
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.types import Message
 
+from bot.enums.message_answers import AnswerTypes, MessageAnswers
 
 router = Router()
+router.message.filter(F.chat.type.in_({"group", "supergroup"}))
 
 
 regexp_base = r".*((дайте)|.*(ка[жз])|(пиш)|(какой)|(який)).*"
 ohorona = regexp_base + r"((телефон)|(номер)).*(ох[о]?р[оа]н[иы])"
-service_company = regexp_base + r"((телефон)|(номер)).*((ж[єкеэ][хк])|(комфорт.серв[иі]с))"
+service_company = (
+    regexp_base + r"((телефон)|(номер)).*((ж[єкеэ][хк])|(комфорт.серв[иі]с))"
+)
 post_index = regexp_base + r"([іи]ндекс)"
-
 
 
 @router.message(F.text.lower().regexp(ohorona))
@@ -24,4 +27,4 @@ async def say_service_company_phone(message: Message):
 
 @router.message(F.text.lower().regexp(post_index))
 async def say_index(message: Message):
-    await message.reply("індекс: 08148")
+    await message.reply(text=MessageAnswers.answer(AnswerTypes.POST_INDEX))

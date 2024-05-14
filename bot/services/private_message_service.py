@@ -4,7 +4,7 @@ from aiogram import types
 from loguru import logger
 
 from bot.enums.message_answers import AnswerTypes, MessageAnswers
-from bot.services.api_client import api_client
+from bot.services.api_client import ApiClient
 from bot.types.search_dto import Establishment, SearchResponse
 
 
@@ -13,12 +13,11 @@ class PrivateMessageService:
         self, message: types.Message
     ) -> str | List[Establishment]:
         await self.log_message(message=message)
-        query = message.text
 
-        if validation_error := await self.validate_message(query=query):
+        if validation_error := await self.validate_message(query=message.text):
             return validation_error
 
-        return await self.perform_search(query=query)
+        return await self.perform_search(message=message)
 
     @staticmethod
     async def log_message(message: types.Message):
@@ -32,7 +31,10 @@ class PrivateMessageService:
         elif len(query.split()) > 3:
             return MessageAnswers.answer(AnswerTypes.TOO_MANY_WORDS)
 
-    async def perform_search(self, query: str) -> str | SearchResponse:
+    @staticmethod
+    async def perform_search(message: types.Message) -> str | SearchResponse:
+        query = message.text
+        api_client = ApiClient(user=message.from_user)
         search_response = api_client.find(query=query)
         if not search_response:
             answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)

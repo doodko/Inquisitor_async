@@ -39,9 +39,16 @@ class EstablishmentBuilder:
         return self.optional_string(name=self.establishment.description, icon="📃")
 
     def get_address(self):
-        hint = ", " + self.establishment.hint if self.establishment.hint else ""
-        address = self.establishment.address + hint
-        return self.optional_string(name=address, icon="📍")
+        address = self.establishment.address if self.establishment.address else ""
+        hint = self.establishment.hint if self.establishment.hint else ""
+
+        if address and hint:
+            answer = f"{address}, {hint}"
+            return self.optional_string(name=answer, icon="📍")
+        elif hint:
+            return self.optional_string(name=hint, icon="📍")
+        else:
+            return ""
 
     def get_work_hours(self):
         if not self.establishment.workhrs:
