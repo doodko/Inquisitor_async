@@ -7,7 +7,7 @@ from bot.keyboards.establishment_keyboard import (
     EstablishmentCallback,
     establishments_keyboard,
 )
-from bot.keyboards.rating_keyboard import RatingCallback, rating_keyboard
+from bot.keyboards.rating_keyboard import RatingCallback
 from bot.services.api_client import ApiClient
 from bot.services.establishment_reply_builder import EstablishmentBuilder
 from bot.services.private_message_service import private_message_service
@@ -30,8 +30,10 @@ async def process_establishment(
     establishment = api_client.retrieve(slug=callback_data.slug)
     if establishment:
         answer = EstablishmentBuilder(establishment).build_establishment_card()
-        keyboard = rating_keyboard(establishment=establishment)
-        await query.message.answer(text=answer, reply_markup=keyboard)
+        # keyboard = rating_keyboard(establishment=establishment)
+        # await query.message.answer(text=answer, reply_markup=keyboard)
+        # ToDo: display rating when backend ready to calculate it
+        await query.message.answer(text=answer)
 
     else:
         answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
