@@ -62,4 +62,8 @@ class ApiClient:
         return response_data
 
     def vote(self, establishment_id: int, vote: int):
-        print(f"Voting for {establishment_id}, user {self.user.id} rated it {vote}")
+        endpoint = f"{self.api_url}/infrastructure/{establishment_id}/vote/"
+        response_data = self._request(
+            endpoint=endpoint, method="POST", data={"rating": vote}
+        )
+        return response_data
