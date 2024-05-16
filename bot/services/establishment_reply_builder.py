@@ -15,6 +15,7 @@ class EstablishmentBuilder:
             + self.get_work_hours()
             + self.get_phone_numbers()
             + self.get_social_contacts()
+            + self.get_rating()
         )
 
     def get_main_icon(self) -> str:
@@ -43,8 +44,10 @@ class EstablishmentBuilder:
         hint = self.establishment.hint if self.establishment.hint else ""
 
         if address and hint:
-            answer = f"{address}, {hint}"
-            return self.optional_string(name=answer, icon="📍")
+            full_address = f"{address}, {hint}"
+            return self.optional_string(name=full_address, icon="📍")
+        elif address:
+            return self.optional_string(name=address, icon="📍")
         elif hint:
             return self.optional_string(name=hint, icon="📍")
         else:
@@ -75,6 +78,17 @@ class EstablishmentBuilder:
         ]
         contacts_string = "\n🔗 Соцмережі: " + ", ".join(social_contacts)
         return contacts_string
+
+    def get_rating(self) -> str:
+        if self.establishment.total_votes < 10:
+            return ""
+
+        rating = round(self.establishment.avg_rating)
+        emoji_mapper = {1: "💩", 2: "👎", 3: "😐", 4: "👍", 5: "😍"}
+        emoji_rating = emoji_mapper.get(rating, "🤷")
+        text_rating = f"рейтинг ({self.establishment.avg_rating})"
+        answer_string = self.optional_string(name=text_rating, icon=emoji_rating)
+        return answer_string
 
     @staticmethod
     def optional_string(name: str, icon: str = "") -> str:

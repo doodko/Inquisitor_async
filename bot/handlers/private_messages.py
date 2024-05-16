@@ -7,7 +7,7 @@ from bot.keyboards.establishment_keyboard import (
     EstablishmentCallback,
     establishments_keyboard,
 )
-from bot.keyboards.rating_keyboard import RatingCallback
+from bot.keyboards.rating_keyboard import RatingCallback, rating_keyboard
 from bot.services.api_client import ApiClient
 from bot.services.establishment_reply_builder import EstablishmentBuilder
 from bot.services.private_message_service import private_message_service
@@ -30,10 +30,8 @@ async def process_establishment(
     establishment = api_client.retrieve(slug=callback_data.slug)
     if establishment:
         answer = EstablishmentBuilder(establishment).build_establishment_card()
-        # keyboard = rating_keyboard(establishment=establishment)
-        # await query.message.answer(text=answer, reply_markup=keyboard)
-        # ToDo: display rating when backend ready to calculate it
-        await query.message.answer(text=answer)
+        keyboard = rating_keyboard(establishment=establishment)
+        await query.message.answer(text=answer, reply_markup=keyboard)
 
     else:
         answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
@@ -45,13 +43,13 @@ async def process_establishment(
 @router.callback_query(RatingCallback.filter())
 async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
     api_client = ApiClient(user=query.from_user)
+    text = f"{MessageAnswers.answer(AnswerTypes.VOTED)} {callback_data.emoji}"
+    await query.message.answer(text=text)
+
     api_client.vote(
         establishment_id=callback_data.establishment_id, vote=callback_data.vote
     )
-    # text = f"Ви проголосували {callback_data.vote} за {callback_data.establishment_id}, записав!"
-    # await query.message.answer(text=text)
-    # ToDo: add voting functionality
-    await query.answer(text="Ваш голос враховано :)")
+    await query.answer()
 
 
 @router.message(F.text)
