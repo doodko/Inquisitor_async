@@ -24,6 +24,8 @@ class Establishment(BaseModel):
     phone_numbers: List[str]
     social_contact: List[SocialContact]
     logo: Optional[HttpUrl]
+    avg_rating: float
+    total_votes: int
     created_at: datetime
     updated_at: datetime
 

@@ -7,6 +7,7 @@ from bot.types.search_dto import Establishment
 class RatingCallback(CallbackData, prefix="rating"):
     establishment_id: int
     vote: int
+    emoji: str
 
 
 def rating_keyboard(establishment: Establishment):
@@ -14,7 +15,9 @@ def rating_keyboard(establishment: Establishment):
 
     builder = InlineKeyboardBuilder()
     for emoji, vote in emoji_ratings.items():
-        callback_data = RatingCallback(establishment_id=establishment.id, vote=vote)
+        callback_data = RatingCallback(
+            establishment_id=establishment.id, vote=vote, emoji=emoji
+        )
         builder.button(text=emoji, callback_data=callback_data)
 
     builder.adjust(5)
