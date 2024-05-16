@@ -43,13 +43,13 @@ async def process_establishment(
 @router.callback_query(RatingCallback.filter())
 async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
     api_client = ApiClient(user=query.from_user)
-    text = f"Ви проголосували {callback_data.emoji}, записую!"
+    text = f"{MessageAnswers.answer(AnswerTypes.VOTED)} {callback_data.emoji}"
     await query.message.answer(text=text)
 
     api_client.vote(
         establishment_id=callback_data.establishment_id, vote=callback_data.vote
     )
-    await query.answer(text="Ваш голос враховано :)")
+    await query.answer()
 
 
 @router.message(F.text)
