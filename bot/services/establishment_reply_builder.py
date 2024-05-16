@@ -43,8 +43,10 @@ class EstablishmentBuilder:
         hint = self.establishment.hint if self.establishment.hint else ""
 
         if address and hint:
-            answer = f"{address}, {hint}"
-            return self.optional_string(name=answer, icon="📍")
+            full_address = f"{address}, {hint}"
+            return self.optional_string(name=full_address, icon="📍")
+        elif address:
+            return self.optional_string(name=address, icon="📍")
         elif hint:
             return self.optional_string(name=hint, icon="📍")
         else:
