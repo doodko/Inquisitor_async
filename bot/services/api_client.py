@@ -40,14 +40,16 @@ class ApiClient:
         params = {"search": query, "page_size": 20}
 
         response_data = self._request(endpoint=endpoint, params=params)
-        search_response = SearchResponse.model_validate(response_data)
-        return search_response
+        if response_data:
+            search_response = SearchResponse.model_validate(response_data)
+            return search_response
 
     def retrieve(self, slug: str) -> Establishment:
         endpoint = f"{self.api_url}/infrastructure/{slug}/"
         response_data = self._request(endpoint=endpoint)
-        establishment = Establishment.model_validate(response_data)
-        return establishment
+        if response_data:
+            establishment = Establishment.model_validate(response_data)
+            return establishment
 
     def hello_its_me(self):
         endpoint = f"{self.api_url}/users/tg-register/"
