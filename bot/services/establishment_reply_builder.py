@@ -15,6 +15,7 @@ class EstablishmentBuilder:
             + self.get_work_hours()
             + self.get_phone_numbers()
             + self.get_social_contacts()
+            + self.get_rating()
         )
 
     def get_main_icon(self) -> str:
@@ -77,6 +78,18 @@ class EstablishmentBuilder:
         ]
         contacts_string = "\n🔗 Соцмережі: " + ", ".join(social_contacts)
         return contacts_string
+
+    def get_rating(self) -> str:
+        if self.establishment.total_votes < 10:
+            return ""
+
+        rating = round(self.establishment.avg_rating)
+        emoji_mapper = {1: "💩", 2: "👎", 3: "😐", 4: "👍", 5: "😍"}
+        emoji_rating = emoji_mapper.get(rating, "🤷")
+        answer_string = self.optional_string(
+            name=str(self.establishment.avg_rating), icon=emoji_rating
+        )
+        return answer_string
 
     @staticmethod
     def optional_string(name: str, icon: str = "") -> str:
