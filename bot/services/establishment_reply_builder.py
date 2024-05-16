@@ -86,9 +86,8 @@ class EstablishmentBuilder:
         rating = round(self.establishment.avg_rating)
         emoji_mapper = {1: "💩", 2: "👎", 3: "😐", 4: "👍", 5: "😍"}
         emoji_rating = emoji_mapper.get(rating, "🤷")
-        answer_string = self.optional_string(
-            name=str(self.establishment.avg_rating), icon=emoji_rating
-        )
+        text_rating = f"рейтинг ({self.establishment.avg_rating})"
+        answer_string = self.optional_string(name=text_rating, icon=emoji_rating)
         return answer_string
 
     @staticmethod
