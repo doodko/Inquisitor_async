@@ -1,5 +1,6 @@
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
+from loguru import logger
 
 from bot.enums.message_answers import AnswerTypes, MessageAnswers
 from bot.handlers.commands import cmd_donate
@@ -17,9 +18,20 @@ router = Router()
 router.message.filter(F.chat.type == "private")
 
 
+light_regexp = r".*\b(світло|свет|генератор|графік|график|дтек)\b.*"
+
+
 @router.message(F.text.lower().regexp(r"(дякую)|(спасиб)"))
 async def text_donate(message: Message):
     await cmd_donate(message)
+
+
+@router.message(F.text.lower().regexp(light_regexp))
+async def handle_special_words(message: Message):
+    log_text = f"electricity questions | {message.from_user.full_name} | {message.text}"
+    logger.bind(private=True).info(log_text)
+    answer = MessageAnswers.answer(AnswerTypes.LIGHT)
+    await message.reply(text=answer)
 
 
 @router.callback_query(EstablishmentCallback.filter())
