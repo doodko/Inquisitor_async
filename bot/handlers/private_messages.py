@@ -2,7 +2,6 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
 from loguru import logger
 
-from bot.enums.message_answers import AnswerTypes, MessageAnswers
 from bot.handlers.commands import cmd_donate
 from bot.keyboards.establishment_keyboard import (
     EstablishmentCallback,
@@ -12,6 +11,8 @@ from bot.keyboards.rating_keyboard import RatingCallback, rating_keyboard
 from bot.services.api_client import ApiClient
 from bot.services.establishment_reply_builder import EstablishmentBuilder
 from bot.services.private_message_service import private_message_service
+from bot.types.enums import AnswerTypes
+from bot.types.message_answers import MessageAnswers
 from bot.types.search_dto import SearchResponse
 
 router = Router()

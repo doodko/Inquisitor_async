@@ -1,7 +1,8 @@
 from aiogram import F, Router
 from aiogram.types import Message
 
-from bot.enums.message_answers import AnswerTypes, MessageAnswers
+from bot.types.enums import AnswerTypes
+from bot.types.message_answers import MessageAnswers
 
 router = Router()
 router.message.filter(F.chat.type.in_({"group", "supergroup"}))

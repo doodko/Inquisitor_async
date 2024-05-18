@@ -3,8 +3,9 @@ from typing import List
 from aiogram import types
 from loguru import logger
 
-from bot.enums.message_answers import AnswerTypes, MessageAnswers
 from bot.services.api_client import ApiClient
+from bot.types.enums import AnswerTypes
+from bot.types.message_answers import MessageAnswers
 from bot.types.search_dto import Establishment, SearchResponse
 
 
