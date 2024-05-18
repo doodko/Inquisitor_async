@@ -2,11 +2,13 @@ from enum import StrEnum, auto
 
 
 class MixpanelEvents(StrEnum):
-    REGISTER = auto()
     SEARCH = auto()
     UNSUCCESSFUL_SEARCH = auto()
     VOTE = auto()
     HINT = auto()
+    TOO_SHORT_MESSAGE = auto()
+    TOO_LONG_MESSAGE = auto()
+    ERROR = auto()
 
 
 class AnswerTypes(StrEnum):
@@ -19,3 +21,4 @@ class AnswerTypes(StrEnum):
     VOTED = auto()
     LIGHT = auto()
     HELP = auto()
+    SHARE = auto()
