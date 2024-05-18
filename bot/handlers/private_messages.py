@@ -19,7 +19,7 @@ router = Router()
 router.message.filter(F.chat.type == "private")
 
 
-light_regexp = r".*\b(світло|свет|генератор|графік|график|дтек)\b.*"
+light_regexp = r".*\b(світл|свет|генератор|графік|график|дт[е|э]к)\b.*"
 
 
 @router.message(F.text.lower().regexp(r"(дякую)|(спасиб)"))
@@ -28,7 +28,7 @@ async def text_donate(message: Message):
 
 
 @router.message(F.text.lower().regexp(light_regexp))
-async def handle_special_words(message: Message):
+async def handle_electricity_questions(message: Message):
     log_text = f"electricity questions | {message.from_user.full_name} | {message.text}"
     logger.bind(private=True).info(log_text)
     answer = MessageAnswers.answer(AnswerTypes.LIGHT)
