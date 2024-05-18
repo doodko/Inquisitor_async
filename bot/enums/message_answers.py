@@ -10,9 +10,12 @@ class AnswerTypes(StrEnum):
     SUCCESSFUL_SEARCH = auto()
     POST_INDEX = auto()
     VOTED = auto()
+    LIGHT = auto()
 
 
 class MessageAnswers:
+    dtek = "<a href='https://t.me/DTEKKyivRegionElektromerezhiBot'>ДТЕК</a>"
+
     too_short_text = [
         "Будь ласка, напишіть більше деталей.",
         "Трохи більше інформації буде корисною.",
@@ -66,6 +69,14 @@ class MessageAnswers:
         "Так народжувалась демократія.",
         "Окей, записав.",
         "Гадаю, це взаємно",
+    ]
+    light = [
+        f"Я вже давно не слідкую за світлом, з цим краще справляється {dtek}",
+        f"Ці питання я делегував коллегам з {dtek}",
+        f"Гадаю, {dtek} краще знає",
+        f"Запитайте це у {dtek}, будь ласка",
+        f"У {dtek} питали?",
+        f"Я знаю де вінішка купити чи бургер замовити, а це краще до {dtek} направити :)",
     ]
 
     @classmethod

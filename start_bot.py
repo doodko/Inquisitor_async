@@ -7,6 +7,7 @@ from aiogram.enums import ParseMode
 from loguru import logger
 
 from bot.handlers import commands, faq, private_messages
+from bot.services.sentry_setup import sentry_init
 from bot.settings_reader import config
 
 bot = Bot(
@@ -43,6 +44,7 @@ async def main():
 
     logger.bind(event=True).info("Bot started")
 
+    sentry_init()
     await bot.delete_webhook(drop_pending_updates=True)
     await send_message(text="Bot started")
     await dp.start_polling(bot)
