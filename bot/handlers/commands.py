@@ -5,6 +5,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger
 
 from bot.services.api_client import ApiClient
+from bot.services.establishment_reply_builder import EstablishmentBuilder
 from bot.services.mixpanel_client import mp
 from bot.settings_reader import config
 from bot.types.enums import AnswerTypes
@@ -41,7 +42,7 @@ async def cmd_ask_me(message: Message):
 
 
 @router.message(Command(commands=["read_rules"]))
-async def cmd_read_ruled(message: Message):
+async def cmd_read_rules(message: Message):
     await message.delete()
 
     if message.from_user.id in config.admins:
@@ -84,3 +85,27 @@ async def cmd_help(message: Message):
 
     else:
         await message.delete()
+
+
+@router.message(Command(commands=["share"]))
+async def cmd_share(message: Message):
+    await message.delete()
+
+    split = message.text.split()
+    if message.reply_to_message and len(split) > 1:
+        slug = split[1]
+        api_client = ApiClient(user=message.from_user)
+        establishment = api_client.retrieve(slug=slug)
+
+        if establishment:
+            builder = InlineKeyboardBuilder()
+            builder.row(
+                InlineKeyboardButton(
+                    text="Чат з ботом", url="https://t.me/pk_moderatorbot"
+                )
+            )
+
+            answer = f"{MessageAnswers.answer(AnswerTypes.SHARE)}\n\n{EstablishmentBuilder(establishment).build_establishment_card()}"
+            await message.reply_to_message.reply(
+                text=answer, reply_markup=builder.as_markup()
+            )
