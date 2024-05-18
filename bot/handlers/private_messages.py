@@ -43,7 +43,9 @@ async def process_establishment(
     establishment = api_client.retrieve(slug=callback_data.slug)
     if establishment:
         answer = EstablishmentBuilder(establishment).build_establishment_card()
-        keyboard = rating_keyboard(establishment=establishment)
+        keyboard = rating_keyboard(
+            establishment=establishment, chat_id=query.message.chat.id
+        )
         await query.message.answer(text=answer, reply_markup=keyboard)
 
     else:
