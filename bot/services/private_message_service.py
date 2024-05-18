@@ -28,7 +28,7 @@ class PrivateMessageService:
 
     @staticmethod
     async def validate_message(message: types.Message) -> str | None:
-        query = message.text
+        query = message.text.lower()
         if len(query) < 3:
             answer = MessageAnswers.answer(AnswerTypes.TOO_SHORT_TEXT)
             mp.track_event(
@@ -49,7 +49,7 @@ class PrivateMessageService:
 
     @staticmethod
     async def perform_search(message: types.Message) -> str | SearchResponse:
-        query = message.text
+        query = message.text.lower()
         api_client = ApiClient(user=message.from_user)
         search_response = api_client.find(query=query)
 
