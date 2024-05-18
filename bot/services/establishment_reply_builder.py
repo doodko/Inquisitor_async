@@ -80,13 +80,15 @@ class EstablishmentBuilder:
         return contacts_string
 
     def get_rating(self) -> str:
-        if self.establishment.total_votes < 10:
-            return ""
-
-        rating = round(self.establishment.avg_rating)
         emoji_mapper = {1: "💩", 2: "👎", 3: "😐", 4: "👍", 5: "😍"}
+        rating = round(self.establishment.avg_rating)
         emoji_rating = emoji_mapper.get(rating, "🤷")
-        text_rating = f"рейтинг ({self.establishment.avg_rating})"
+        text_rating = (
+            f"рейтинг ({round(self.establishment.avg_rating, 1)})"
+            if self.establishment.avg_rating
+            else "Ніхто не оцінював, будьте першим"
+        )
+
         answer_string = self.optional_string(name=text_rating, icon=emoji_rating)
         return answer_string
 
