@@ -5,7 +5,11 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger
 
 from bot.services.api_client import ApiClient
+from bot.services.establishment_reply_builder import EstablishmentBuilder
+from bot.services.mixpanel_client import mp
 from bot.settings_reader import config
+from bot.types.enums import AnswerTypes
+from bot.types.message_answers import MessageAnswers
 
 router = Router()
 
@@ -38,7 +42,7 @@ async def cmd_ask_me(message: Message):
 
 
 @router.message(Command(commands=["read_rules"]))
-async def cmd_read_ruled(message: Message):
+async def cmd_read_rules(message: Message):
     await message.delete()
 
     if message.from_user.id in config.admins:
@@ -72,10 +76,36 @@ async def cmd_donate(message: Message):
 @router.message(Command(commands=["start", "help"]))
 async def cmd_help(message: Message):
     if message.chat.type == "private":
-        answer = f"Коротко запитайте що вас цікавить і я спробую знайти варіанти серед закладів ПК. Я вмію шукати по назві чи ключовим словам.\n\nЗнайшли помилку чи хочете запропонувати зміни? <a href='tg://user?id={config.superuser_id}'>Пишіть.</a>"
-        await message.answer(text=answer)
+        text = MessageAnswers.answer(AnswerTypes.HELP)
+        await message.answer(text=text)
+
+        mp.update_user_properties(user=message.from_user)
         api_client = ApiClient(user=message.from_user)
         api_client.hello_its_me()
 
     else:
         await message.delete()
+
+
+@router.message(Command(commands=["share"]))
+async def cmd_share(message: Message):
+    await message.delete()
+
+    split = message.text.split()
+    if message.reply_to_message and len(split) > 1:
+        slug = split[1]
+        api_client = ApiClient(user=message.from_user)
+        establishment = api_client.retrieve(slug=slug)
+
+        if establishment:
+            builder = InlineKeyboardBuilder()
+            builder.row(
+                InlineKeyboardButton(
+                    text="Чат з ботом", url="https://t.me/pk_moderatorbot"
+                )
+            )
+
+            answer = f"{MessageAnswers.answer(AnswerTypes.SHARE)}\n\n{EstablishmentBuilder(establishment).build_establishment_card()}"
+            await message.reply_to_message.reply(
+                text=answer, reply_markup=builder.as_markup()
+            )

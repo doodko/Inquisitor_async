@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     rules_url: str
     jar_url: str
     sentry_dns: str
+    mixpanel_token: str
 
     class Config:
         env_file = ".env"
