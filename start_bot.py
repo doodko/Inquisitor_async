@@ -27,24 +27,17 @@ logger.add(
     filter=lambda record: "private" in record["extra"],
     rotation="1 day",
 )
-logger.add(
-    "logs/{time:YYYY-MM-DD}/events.log",
-    format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
-    filter=lambda record: "event" in record["extra"],
-    rotation="1 day",
-)
 
 
 async def main():
+    sentry_init()
+
     dp = Dispatcher()
 
     dp.include_router(commands.router)
     dp.include_router(faq.router)
     dp.include_router(private_messages.router)
 
-    logger.bind(event=True).info("Bot started")
-
-    sentry_init()
     await bot.delete_webhook(drop_pending_updates=True)
     await send_message(text="Bot started")
     await dp.start_polling(bot)

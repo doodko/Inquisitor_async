@@ -9,6 +9,8 @@ class MixpanelEvents(StrEnum):
     TOO_SHORT_MESSAGE = auto()
     TOO_LONG_MESSAGE = auto()
     ERROR = auto()
+    LIGHT = auto()
+    RETRIEVE = auto()
 
 
 class AnswerTypes(StrEnum):

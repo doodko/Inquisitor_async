@@ -10,8 +10,9 @@ from bot.keyboards.establishment_keyboard import (
 from bot.keyboards.rating_keyboard import RatingCallback, rating_keyboard
 from bot.services.api_client import ApiClient
 from bot.services.establishment_reply_builder import EstablishmentBuilder
+from bot.services.mixpanel_client import mp
 from bot.services.private_message_service import private_message_service
-from bot.types.enums import AnswerTypes
+from bot.types.enums import AnswerTypes, MixpanelEvents
 from bot.types.message_answers import MessageAnswers
 from bot.types.search_dto import SearchResponse
 
@@ -33,6 +34,11 @@ async def handle_electricity_questions(message: Message):
     logger.bind(private=True).info(log_text)
     answer = MessageAnswers.answer(AnswerTypes.LIGHT)
     await message.reply(text=answer)
+    mp.track_event(
+        user_id=message.from_user.id,
+        event=MixpanelEvents.LIGHT,
+        event_properties={"message": message.text.lower(), "answer": answer},
+    )
 
 
 @router.callback_query(EstablishmentCallback.filter())
@@ -43,14 +49,25 @@ async def process_establishment(
     establishment = api_client.retrieve(slug=callback_data.slug)
     if establishment:
         answer = EstablishmentBuilder(establishment).build_establishment_card()
-        keyboard = rating_keyboard(
-            establishment=establishment, chat_id=query.message.chat.id
-        )
+        keyboard = rating_keyboard(establishment=establishment)
         await query.message.answer(text=answer, reply_markup=keyboard)
+        mp.track_event(
+            user_id=query.message.from_user.id,
+            event=MixpanelEvents.RETRIEVE,
+            event_properties={
+                "message": establishment.slug,
+                "answer": establishment.name,
+            },
+        )
 
     else:
         answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
         await query.message.answer(text=answer)
+        mp.track_event(
+            user_id=query.message.from_user.id,
+            event=MixpanelEvents.ERROR,
+            event_properties={"message": establishment.name, "answer": answer},
+        )
 
     await query.answer()
 
@@ -58,13 +75,21 @@ async def process_establishment(
 @router.callback_query(RatingCallback.filter())
 async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
     api_client = ApiClient(user=query.from_user)
-    text = f"{MessageAnswers.answer(AnswerTypes.VOTED)} {callback_data.emoji}"
-    await query.message.answer(text=text)
+    answer = f"{MessageAnswers.answer(AnswerTypes.VOTED)} {callback_data.emoji}"
+    await query.message.answer(text=answer)
 
     api_client.vote(
         establishment_id=callback_data.establishment_id, vote=callback_data.vote
     )
     await query.answer()
+    mp.track_event(
+        user_id=query.message.from_user.id,
+        event=MixpanelEvents.VOTE,
+        event_properties={
+            "message": f"{callback_data.establishment_name} - {callback_data.emoji}",
+            "answer": answer,
+        },
+    )
 
 
 @router.message(F.text)

@@ -34,7 +34,7 @@ class PrivateMessageService:
             mp.track_event(
                 user_id=message.from_user.id,
                 event=MixpanelEvents.TOO_SHORT_MESSAGE,
-                event_properties={"type": "search", "message": query, "answer": answer},
+                event_properties={"message": query, "answer": answer},
             )
             return answer
 
@@ -43,7 +43,7 @@ class PrivateMessageService:
             mp.track_event(
                 user_id=message.from_user.id,
                 event=MixpanelEvents.TOO_LONG_MESSAGE,
-                event_properties={"type": "search", "message": query, "answer": answer},
+                event_properties={"message": query, "answer": answer},
             )
             return answer
 
@@ -58,7 +58,7 @@ class PrivateMessageService:
             mp.track_event(
                 user_id=message.from_user.id,
                 event=MixpanelEvents.ERROR,
-                event_properties={"type": "search", "message": query, "answer": answer},
+                event_properties={"message": query, "answer": answer},
             )
 
         elif search_response.count == 0:
@@ -66,7 +66,7 @@ class PrivateMessageService:
             mp.track_event(
                 user_id=message.from_user.id,
                 event=MixpanelEvents.UNSUCCESSFUL_SEARCH,
-                event_properties={"type": "search", "message": query, "answer": answer},
+                event_properties={"message": query, "answer": answer},
             )
 
         else:
@@ -75,7 +75,6 @@ class PrivateMessageService:
                 user_id=message.from_user.id,
                 event=MixpanelEvents.SEARCH,
                 event_properties={
-                    "type": "search",
                     "message": query,
                     "answer": search_response.count,
                 },
