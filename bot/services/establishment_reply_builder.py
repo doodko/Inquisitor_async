@@ -86,7 +86,7 @@ class EstablishmentBuilder:
         text_rating = (
             f"рейтинг ({round(self.establishment.avg_rating, 1)})"
             if self.establishment.avg_rating
-            else "Ніхто не оцінював, будьте першим"
+            else "Ніхто не оцінював, будьте першими"
         )
 
         answer_string = self.optional_string(name=text_rating, icon=emoji_rating)

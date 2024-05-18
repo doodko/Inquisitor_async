@@ -18,3 +18,4 @@ class AnswerTypes(StrEnum):
     POST_INDEX = auto()
     VOTED = auto()
     LIGHT = auto()
+    HELP = auto()
