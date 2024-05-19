@@ -18,12 +18,15 @@ class ShareCallback(CallbackData, prefix="share"):
 
 def rating_keyboard(establishment: Establishment):
     emoji_ratings = {"💩": 1, "👎": 2, "😐": 3, "👍": 4, "😍": 5}
+    trimmed_establishment_name = (
+        establishment.name[:10] if len(establishment.name) > 10 else establishment.name
+    )
 
     builder = InlineKeyboardBuilder()
     for emoji, vote in emoji_ratings.items():
         callback_data = RatingCallback(
             establishment_id=establishment.id,
-            establishment_name=establishment.name,
+            establishment_name=trimmed_establishment_name,
             vote=vote,
             emoji=emoji,
         )
