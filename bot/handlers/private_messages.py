@@ -42,7 +42,7 @@ async def handle_electricity_questions(message: Message):
 
 
 @router.callback_query(EstablishmentCallback.filter())
-async def process_establishment(
+async def process_establishment_retrieve(
     query: CallbackQuery, callback_data: EstablishmentCallback
 ):
     api_client = ApiClient(user=query.from_user)
@@ -50,9 +50,10 @@ async def process_establishment(
     if establishment:
         answer = EstablishmentBuilder(establishment).build_establishment_card()
         keyboard = rating_keyboard(establishment=establishment)
+
         await query.message.answer(text=answer, reply_markup=keyboard)
         mp.track_event(
-            user_id=query.message.from_user.id,
+            user_id=query.from_user.id,
             event=MixpanelEvents.RETRIEVE,
             event_properties={
                 "message": establishment.slug,
@@ -64,7 +65,7 @@ async def process_establishment(
         answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
         await query.message.answer(text=answer)
         mp.track_event(
-            user_id=query.message.from_user.id,
+            user_id=query.from_user.id,
             event=MixpanelEvents.ERROR,
             event_properties={"message": establishment.name, "answer": answer},
         )
@@ -83,7 +84,7 @@ async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
     )
     await query.answer()
     mp.track_event(
-        user_id=query.message.from_user.id,
+        user_id=query.from_user.id,
         event=MixpanelEvents.VOTE,
         event_properties={
             "message": f"{callback_data.establishment_name} - {callback_data.emoji}",
