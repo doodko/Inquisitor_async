@@ -20,7 +20,7 @@ router = Router()
 router.message.filter(F.chat.type == "private")
 
 
-light_regexp = r".*\b(світл[о|а]|свет|генератор|граф[і|и]к|дт[е|э]к).*"
+light_regexp = r".*\b(світл[о|а]|свет|граф[і|и]к|дт[е|э]к).*"
 
 
 @router.message(F.text.lower().regexp(r"(дякую)|(спасиб)"))
