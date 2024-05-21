@@ -21,7 +21,7 @@ post_index = regexp_base + r"([іи]ндекс)"
 async def say_security_service_phone(message: Message):
     await message.reply("+380674092276")
     mp.track_event(
-        user_id=message.from_user.id,
+        user=message.from_user,
         event=MixpanelEvents.HINT,
         event_properties={"type": "security", "message": message.text},
     )
@@ -31,7 +31,7 @@ async def say_security_service_phone(message: Message):
 async def say_service_company_phone(message: Message):
     await message.reply("+380672247713\n+380670000012 (цілодобовий)")
     mp.track_event(
-        user_id=message.from_user.id,
+        user=message.from_user,
         event=MixpanelEvents.HINT,
         event_properties={"type": "service_company", "message": message.text},
     )
@@ -41,7 +41,7 @@ async def say_service_company_phone(message: Message):
 async def say_index(message: Message):
     await message.reply(text=MessageAnswers.answer(AnswerTypes.POST_INDEX))
     mp.track_event(
-        user_id=message.from_user.id,
+        user=message.from_user,
         event=MixpanelEvents.HINT,
         event_properties={"type": "post_index", "message": message.text},
     )

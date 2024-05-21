@@ -1,6 +1,5 @@
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
-from loguru import logger
 
 from bot.handlers.commands import cmd_donate
 from bot.keyboards.establishment_keyboard import (
@@ -30,12 +29,10 @@ async def text_donate(message: Message):
 
 @router.message(F.text.lower().regexp(light_regexp))
 async def handle_electricity_questions(message: Message):
-    log_text = f"electricity questions | {message.from_user.full_name} | {message.text}"
-    logger.bind(private=True).info(log_text)
     answer = MessageAnswers.answer(AnswerTypes.LIGHT)
     await message.reply(text=answer)
     mp.track_event(
-        user_id=message.from_user.id,
+        user=message.from_user,
         event=MixpanelEvents.LIGHT,
         event_properties={"message": message.text.lower(), "answer": answer},
     )
@@ -53,7 +50,7 @@ async def process_establishment_retrieve(
 
         await query.message.answer(text=answer, reply_markup=keyboard)
         mp.track_event(
-            user_id=query.from_user.id,
+            user=query.from_user,
             event=MixpanelEvents.RETRIEVE,
             event_properties={
                 "message": establishment.slug,
@@ -65,7 +62,7 @@ async def process_establishment_retrieve(
         answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
         await query.message.answer(text=answer)
         mp.track_event(
-            user_id=query.from_user.id,
+            user=query.from_user,
             event=MixpanelEvents.ERROR,
             event_properties={"message": establishment.name, "answer": answer},
         )
@@ -84,7 +81,7 @@ async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
     )
     await query.answer()
     mp.track_event(
-        user_id=query.from_user.id,
+        user=query.from_user,
         event=MixpanelEvents.VOTE,
         event_properties={
             "message": f"{callback_data.establishment_name} - {callback_data.emoji}",

@@ -42,6 +42,18 @@ jobs:
             docker pull ${{ env.IMAGE }}
             docker stop ${{ env.CONTAINER }}
             docker rm ${{ env.CONTAINER }}
-            docker run -d --restart unless-stopped --name ${{ env.CONTAINER }} --network ${{ env.NETWORK }} --env-file .env ${{ env.IMAGE }}
+            script: |
+            cd ${{ vars.HOME_PATH }}
+            
+            docker pull ${{ env.IMAGE }}
+            docker stop ${{ env.CONTAINER }}
+            docker rm ${{ env.CONTAINER }}
+            docker run -d \
+              --restart unless-stopped \
+              --name ${{ env.CONTAINER }} \
+              --network ${{ env.NETWORK }} \
+              --env-file .env \
+              -v /home/dudko/inquisitor/logs:/app/logs \
+              ${{ env.IMAGE }}
             
             docker system prune -a -f --volumes
