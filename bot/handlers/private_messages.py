@@ -104,9 +104,27 @@ async def all_other_private_messages(message: Message):
     if isinstance(answer, str):
         await message.answer(answer)
     elif isinstance(answer, SearchResponse):
-        await message.answer(
-            text=MessageAnswers.answer(AnswerTypes.SUCCESSFUL_SEARCH),
-            reply_markup=establishments_keyboard(establishments=answer.result),
-        )
+        if answer.count == 1:
+            establishment = answer.result[0]
+            user = message.from_user
+
+            answer = EstablishmentBuilder(establishment).build_establishment_card()
+            keyboard = rating_keyboard(establishment=establishment, user=user)
+
+            await message.answer(text=answer, reply_markup=keyboard)
+            mp.track_event(
+                user=user,
+                event=MixpanelEvents.RETRIEVE,
+                event_properties={
+                    "message": establishment.slug,
+                    "answer": establishment.name,
+                },
+            )
+        else:
+            await message.answer(
+                text=MessageAnswers.answer(AnswerTypes.SUCCESSFUL_SEARCH),
+                reply_markup=establishments_keyboard(establishments=answer.result),
+            )
+
     else:
         await message.answer(text=MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE))
