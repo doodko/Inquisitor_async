@@ -6,7 +6,7 @@ from bot.keyboards.establishment_keyboard import (
     EstablishmentCallback,
     establishments_keyboard,
 )
-from bot.keyboards.rating_keyboard import RatingCallback, rating_keyboard
+from bot.keyboards.rating_keyboard import RatingCallback, ShareCallback, rating_keyboard
 from bot.services.api_client import ApiClient
 from bot.services.establishment_reply_builder import EstablishmentBuilder
 from bot.services.mixpanel_client import mp
@@ -42,15 +42,16 @@ async def handle_electricity_questions(message: Message):
 async def process_establishment_retrieve(
     query: CallbackQuery, callback_data: EstablishmentCallback
 ):
-    api_client = ApiClient(user=query.from_user)
+    user = query.from_user
+    api_client = ApiClient(user=user)
     establishment = api_client.retrieve(slug=callback_data.slug)
     if establishment:
         answer = EstablishmentBuilder(establishment).build_establishment_card()
-        keyboard = rating_keyboard(establishment=establishment)
+        keyboard = rating_keyboard(establishment=establishment, user=user)
 
         await query.message.answer(text=answer, reply_markup=keyboard)
         mp.track_event(
-            user=query.from_user,
+            user=user,
             event=MixpanelEvents.RETRIEVE,
             event_properties={
                 "message": establishment.slug,
@@ -76,18 +77,24 @@ async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
     answer = f"{MessageAnswers.answer(AnswerTypes.VOTED)} {callback_data.emoji}"
     await query.message.answer(text=answer)
 
-    api_client.vote(
-        establishment_id=callback_data.establishment_id, vote=callback_data.vote
-    )
+    api_client.vote(establishment_id=callback_data.obj_id, vote=callback_data.vote)
     await query.answer()
+    mp.update_user_properties(user=query.from_user)
     mp.track_event(
         user=query.from_user,
         event=MixpanelEvents.VOTE,
         event_properties={
-            "message": f"{callback_data.establishment_name} - {callback_data.emoji}",
+            "message": f"{callback_data.obj_name} - {callback_data.emoji}",
             "answer": answer,
         },
     )
+
+
+@router.callback_query(ShareCallback.filter())
+async def process_share(query: CallbackQuery, callback_data: ShareCallback):
+    answer = f"<code>/share {callback_data.slug}</code>"
+    await query.message.answer(text=answer)
+    await query.answer()
 
 
 @router.message(F.text)
