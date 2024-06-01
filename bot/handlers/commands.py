@@ -1,6 +1,10 @@
+from datetime import timedelta
+
 from aiogram import Router
+from aiogram.enums import ParseMode
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardButton, Message
+from aiogram.methods import RestrictChatMember
+from aiogram.types import ChatPermissions, InlineKeyboardButton, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger
 
@@ -50,11 +54,21 @@ async def cmd_read_rules(message: Message):
             user = message.reply_to_message.from_user
             await message.reply_to_message.delete()
 
-            user_link = f"<a href='tg://user?id={user.id}'>{user.full_name}</a>"
-            rules_link = f"<a href='{config.rules_url}'>правилами групи</a>"
-            answer = f"{user_link}, ознайомтесь з {rules_link}, будь ласка."
+            answer = MessageAnswers.answer(AnswerTypes.READ_RULES) % (
+                user.mention_markdown(),
+                config.rules_url,
+            )
+            await message.answer(text=answer, parse_mode=ParseMode.MARKDOWN_V2)
 
-            await message.answer(text=answer)
+            # restrict user for 12h
+            until_date = message.date + timedelta(hours=12)
+            permissions = ChatPermissions(can_send_messages=False)
+            return RestrictChatMember(
+                chat_id=message.chat.id,
+                user_id=user.id,
+                permissions=permissions,
+                until_date=until_date,
+            )
 
 
 @router.message(Command(commands=["donate"]))
