@@ -21,7 +21,7 @@ class Establishment(BaseModel):
     altname: str | None = None
     description: str | None = None
     info: str | None = None
-    address: Address
+    address: Address | None = None
     hint: str | None = None
     tags: List[str]
     category: str

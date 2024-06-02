@@ -42,7 +42,7 @@ class EstablishmentBuilder:
     def get_address(self):
         address = (
             self.establishment.address.full_address
-            if self.establishment.address.full_address
+            if self.establishment.address and self.establishment.address.full_address
             else ""
         )
         hint = self.establishment.hint if self.establishment.hint else ""
