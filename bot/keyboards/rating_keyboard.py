@@ -18,6 +18,10 @@ class ShareCallback(CallbackData, prefix="share"):
     slug: str
 
 
+class LocationCallback(CallbackData, prefix="location"):
+    coords: str
+
+
 def rating_keyboard(establishment: Establishment, user: User) -> InlineKeyboardMarkup:
     emoji_ratings = {"💩": 1, "👎": 2, "😐": 3, "👍": 4, "😍": 5}
     trimmed_establishment_name = (
@@ -33,15 +37,20 @@ def rating_keyboard(establishment: Establishment, user: User) -> InlineKeyboardM
             emoji=emoji,
         )
         builder.button(text=emoji, callback_data=callback_data)
+        builder.adjust(5)
+
+    if establishment.address and establishment.address.location:
+        callback_data = LocationCallback(coords=establishment.address.location).pack()
+        map_button = InlineKeyboardButton(
+            text="Показати на мапі 🗺️", callback_data=callback_data
+        )
+        builder.row(map_button)
 
     if user.id in config.admins:
         callback_data = ShareCallback(
             obj_id=establishment.id, slug=establishment.slug
         ).pack()
         extra_button = InlineKeyboardButton(text="Share", callback_data=callback_data)
-        builder.add(extra_button)
-        builder.adjust(5, 1)
-
-    builder.adjust(5)
+        builder.row(extra_button)
 
     return builder.as_markup()

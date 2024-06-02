@@ -6,7 +6,12 @@ from bot.keyboards.establishment_keyboard import (
     EstablishmentCallback,
     establishments_keyboard,
 )
-from bot.keyboards.rating_keyboard import RatingCallback, ShareCallback, rating_keyboard
+from bot.keyboards.rating_keyboard import (
+    LocationCallback,
+    RatingCallback,
+    ShareCallback,
+    rating_keyboard,
+)
 from bot.services.api_client import ApiClient
 from bot.services.establishment_reply_builder import EstablishmentBuilder
 from bot.services.mixpanel_client import mp
@@ -94,6 +99,13 @@ async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
 async def process_share(query: CallbackQuery, callback_data: ShareCallback):
     answer = f"<code>/share {callback_data.slug}</code>"
     await query.message.answer(text=answer)
+    await query.answer()
+
+
+@router.callback_query(LocationCallback.filter())
+async def show_location(query: CallbackQuery, callback_data: LocationCallback):
+    latitude, longitude = callback_data.coords.split(",")
+    await query.message.answer_location(latitude=latitude, longitude=longitude)
     await query.answer()
 
 
