@@ -9,17 +9,22 @@ class SocialContact(BaseModel):
     value: HttpUrl
 
 
+class Address(BaseModel):
+    full_address: str | None = None
+    location: str | None = None
+
+
 class Establishment(BaseModel):
     id: int
     name: str
     slug: str
     altname: str | None = None
     description: str | None = None
-    address: str | None = None
+    info: str | None = None
+    address: Address
     hint: str | None = None
     tags: List[str]
     category: str
-    location: str | None = None
     workhrs: str | None = None
     phone_numbers: List[str]
     social_contact: List[SocialContact]
