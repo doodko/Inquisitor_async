@@ -1,13 +1,17 @@
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
-from loguru import logger
 
 from bot.handlers.commands import cmd_donate
 from bot.keyboards.establishment_keyboard import (
     EstablishmentCallback,
     establishments_keyboard,
 )
-from bot.keyboards.rating_keyboard import RatingCallback, rating_keyboard
+from bot.keyboards.rating_keyboard import (
+    LocationCallback,
+    RatingCallback,
+    ShareCallback,
+    rating_keyboard,
+)
 from bot.services.api_client import ApiClient
 from bot.services.establishment_reply_builder import EstablishmentBuilder
 from bot.services.mixpanel_client import mp
@@ -30,12 +34,10 @@ async def text_donate(message: Message):
 
 @router.message(F.text.lower().regexp(light_regexp))
 async def handle_electricity_questions(message: Message):
-    log_text = f"electricity questions | {message.from_user.full_name} | {message.text}"
-    logger.bind(private=True).info(log_text)
     answer = MessageAnswers.answer(AnswerTypes.LIGHT)
     await message.reply(text=answer)
     mp.track_event(
-        user_id=message.from_user.id,
+        user=message.from_user,
         event=MixpanelEvents.LIGHT,
         event_properties={"message": message.text.lower(), "answer": answer},
     )
@@ -45,15 +47,16 @@ async def handle_electricity_questions(message: Message):
 async def process_establishment_retrieve(
     query: CallbackQuery, callback_data: EstablishmentCallback
 ):
-    api_client = ApiClient(user=query.from_user)
+    user = query.from_user
+    api_client = ApiClient(user=user)
     establishment = api_client.retrieve(slug=callback_data.slug)
     if establishment:
         answer = EstablishmentBuilder(establishment).build_establishment_card()
-        keyboard = rating_keyboard(establishment=establishment)
+        keyboard = rating_keyboard(establishment=establishment, user=user)
 
         await query.message.answer(text=answer, reply_markup=keyboard)
         mp.track_event(
-            user_id=query.from_user.id,
+            user=user,
             event=MixpanelEvents.RETRIEVE,
             event_properties={
                 "message": establishment.slug,
@@ -65,7 +68,7 @@ async def process_establishment_retrieve(
         answer = MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE)
         await query.message.answer(text=answer)
         mp.track_event(
-            user_id=query.from_user.id,
+            user=query.from_user,
             event=MixpanelEvents.ERROR,
             event_properties={"message": establishment.name, "answer": answer},
         )
@@ -79,18 +82,31 @@ async def process_rating(query: CallbackQuery, callback_data: RatingCallback):
     answer = f"{MessageAnswers.answer(AnswerTypes.VOTED)} {callback_data.emoji}"
     await query.message.answer(text=answer)
 
-    api_client.vote(
-        establishment_id=callback_data.establishment_id, vote=callback_data.vote
-    )
+    api_client.vote(establishment_id=callback_data.obj_id, vote=callback_data.vote)
     await query.answer()
+    mp.update_user_properties(user=query.from_user)
     mp.track_event(
-        user_id=query.from_user.id,
+        user=query.from_user,
         event=MixpanelEvents.VOTE,
         event_properties={
-            "message": f"{callback_data.establishment_name} - {callback_data.emoji}",
+            "message": f"{callback_data.obj_name} - {callback_data.emoji}",
             "answer": answer,
         },
     )
+
+
+@router.callback_query(ShareCallback.filter())
+async def process_share(query: CallbackQuery, callback_data: ShareCallback):
+    answer = f"<code>/share {callback_data.slug}</code>"
+    await query.message.answer(text=answer)
+    await query.answer()
+
+
+@router.callback_query(LocationCallback.filter())
+async def show_location(query: CallbackQuery, callback_data: LocationCallback):
+    latitude, longitude = callback_data.coords.split(",")
+    await query.message.answer_location(latitude=latitude, longitude=longitude)
+    await query.answer()
 
 
 @router.message(F.text)
@@ -100,9 +116,27 @@ async def all_other_private_messages(message: Message):
     if isinstance(answer, str):
         await message.answer(answer)
     elif isinstance(answer, SearchResponse):
-        await message.answer(
-            text=MessageAnswers.answer(AnswerTypes.SUCCESSFUL_SEARCH),
-            reply_markup=establishments_keyboard(establishments=answer.result),
-        )
+        if answer.count == 1:
+            establishment = answer.result[0]
+            user = message.from_user
+
+            answer = EstablishmentBuilder(establishment).build_establishment_card()
+            keyboard = rating_keyboard(establishment=establishment, user=user)
+
+            await message.answer(text=answer, reply_markup=keyboard)
+            mp.track_event(
+                user=user,
+                event=MixpanelEvents.RETRIEVE,
+                event_properties={
+                    "message": establishment.slug,
+                    "answer": establishment.name,
+                },
+            )
+        else:
+            await message.answer(
+                text=MessageAnswers.answer(AnswerTypes.SUCCESSFUL_SEARCH),
+                reply_markup=establishments_keyboard(establishments=answer.result),
+            )
+
     else:
         await message.answer(text=MessageAnswers.answer(AnswerTypes.ERROR_MESSAGE))

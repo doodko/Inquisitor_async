@@ -22,9 +22,9 @@ logger.add(
     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{message}</level>",
 )
 logger.add(
-    "logs/{time:YYYY-MM-DD}/private.log",
+    "logs/{time:YYYY-MM-DD}/event.log",
     format="{time:YYYY-MM-DD HH:mm:ss} | {message}",
-    filter=lambda record: "private" in record["extra"],
+    filter=lambda record: "event" in record["extra"],
     rotation="1 day",
 )
 

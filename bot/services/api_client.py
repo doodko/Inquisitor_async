@@ -37,7 +37,7 @@ class ApiClient:
 
     def find(self, query: str) -> SearchResponse:
         endpoint = f"{self.api_url}/infrastructure/"
-        params = {"search": query, "page_size": 20}
+        params = {"search": query, "page_size": 20, "fuzz": True}
 
         response_data = self._request(endpoint=endpoint, params=params)
         if response_data:

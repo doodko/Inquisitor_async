@@ -24,3 +24,4 @@ class AnswerTypes(StrEnum):
     LIGHT = auto()
     HELP = auto()
     SHARE = auto()
+    READ_RULES = auto()
